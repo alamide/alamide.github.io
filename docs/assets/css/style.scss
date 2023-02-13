@@ -3,3 +3,22 @@
 @import "{{ site.theme }}";
 
 header h1:before { content: ""; font-size: 24px; }
+
+.sql_tab{
+  font-size: 10px;
+  border-collapse: collapse;
+}
+
+.sql_left_container{
+  float: left; 
+  width: auto; 
+  position: fixed;
+  left: 20px;
+  top: 130px;
+  font-size: 10px;
+}
+
+table {
+  font-size: 10px;
+  border-collapse: collapse;
+}
