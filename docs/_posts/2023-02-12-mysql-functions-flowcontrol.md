@@ -47,11 +47,11 @@ select emp_id, emp_name, IFNULL(prov, '中国') as country from t_emp where prov
 
 ```sql
 select emp_id, emp_name, salary,
-       CASE
-            WHEN salary <= 10000 THEN salary * 0.1
-            WHEN salary <= 20000 THEN (salary - 10000)*0.15 + 10000*0.1
-            WHEN salary <= 50000 THEN (salary-20000)*0.2 + 10000*0.15 + 10000*0.1
-            ELSE (salary-50000)*0.5 + 30000*0.2 + 10000*0.15 + 10000*0.1
+      CASE
+          WHEN salary <= 10000 THEN salary * 0.1
+          WHEN salary <= 20000 THEN (salary - 10000)*0.15 + 10000*0.1
+          WHEN salary <= 50000 THEN (salary-20000)*0.2 + 10000*0.15 + 10000*0.1
+          ELSE (salary-50000)*0.5 + 30000*0.2 + 10000*0.15 + 10000*0.1
       END
       as tax
 from t_emp where emp_id < 5;
@@ -70,11 +70,11 @@ from t_emp where emp_id < 5;
 需求：写出一个SQL 查询语句，M 改为 男，F 显示为 女
 ```sql
 select emp_id, emp_name,
-       CASE sex
-            WHEN 'M' then '男'
-            WHEN 'F' then '女'
-            ELSE '未知'
-       END
+      CASE sex
+          WHEN 'M' then '男'
+          WHEN 'F' then '女'
+          ELSE '未知'
+      END
        as "性别"
 from t_emp where emp_id < 5;
 ```

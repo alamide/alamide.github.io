@@ -10,7 +10,7 @@ title: My Blog
     <span class="date">{{ post.date | date: "%Y-%m-%d" }}, {{page.author | default: site.author }}</span>
   </p>
   <div class="content">
-    {{ post.content | truncatewords: 150 }}
+    {{ post.content | truncatewords: 50 }}
   </div>
 {% endfor %}
 
