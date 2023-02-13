@@ -2,10 +2,9 @@
 layout: sql
 title:  "MySQL 流程控制函数"
 date:   2023-02-12
-categories: MySQL Functions FlowControl
+categories: MySQL Functions
 tags: MySQL Functions 
 ---
-# MySQL 流程控制函数
 
 * IF(expr1, expr2, expr3)
 

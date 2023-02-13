@@ -1,64 +1,231 @@
 <!DOCTYPE html>
-<html lang="{{ site.lang | default: "en-US" }}">
-  <head>
-    <meta charset='utf-8'>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="{{ '/assets/css/style.css?v=' | append: site.github.build_revision | relative_url }}">
-  </head>
+<html lang="{{ site.lang | default: " en-US" }}">
 
-  <body>
+<head>
+  <meta charset='utf-8'>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="{{ '/assets/css/style.css?v=' | append: site.github.build_revision | relative_url }}">
+</head>
 
-    <header>
-      <div class="container">
-        <a id="a-title" href="/">
-          <h1>{{site.description}}</h1>
-        </a>
-      </div>
-    </header>
-    <div class="sql_left_container">
-      <h2>Table t_emp</h2>
-      <table border="1" class="sql_tab">
-        <tr><th>emp_id</th><th>emp_name</th><th>sex</th><th>email</th><th>prov</th><th>age</th><th>salary</th><th>dept_id</th></tr>
-        <tr><td>1</td><td>李三</td><td>M</td><td>lisan@emp.com</td><td>江苏</td><td>32</td><td>18000</td><td>1</td></tr>
-        <tr><td>2</td><td>王丽</td><td>F</td><td>wangli@emp.com</td><td>山东</td><td>25</td><td>9000</td><td>1</td></tr>
-        <tr><td>3</td><td>王强</td><td>M</td><td>wangqiang@emp.com</td><td>北京</td><td>42</td><td>12000</td><td>2</td></tr>
-        <tr><td>4</td><td>何马</td><td>M</td><td>hema@emp.com</td><td>江苏</td><td>32</td><td>8000</td><td>2</td></tr>
-        <tr><td>5</td><td>赵四海</td><td>M</td><td>zhaosihai@emp.com</td><td>河北</td><td>32</td><td>17000</td><td>3</td></tr>
-        <tr><td>6</td><td>程兴</td><td>M</td><td>chenxing@emp.com</td><td>武汉</td><td>32</td><td>16000</td><td>3</td></tr>
-        <tr><td>7</td><td>孙月</td><td>F</td><td>sunyue@emp.com</td><td>山东</td><td>22</td><td>10000</td><td>4</td></tr>
-        <tr><td>8</td><td>钱金</td><td>M</td><td>qianjin@emp.com</td><td>北京</td><td>52</td><td>28000</td><td>4</td></tr>
-        <tr><td>9</td><td>刘红</td><td>F</td><td>liuhong@emp.com</td><td>安徽</td><td>22</td><td>8000</td><td>5</td></tr>
-        <tr><td>10</td><td>蒋一心</td><td>F</td><td>jinagyixin@emp.com</td><td>山西</td><td>28</td><td>9000</td><td>5</td></tr>
-        <tr><td>11</td><td>刘红</td><td>F</td><td>liuhong@emp.com</td><td>河南</td><td>22</td><td>8000</td><td>6</td></tr>
-        <tr><td>12</td><td>蒋一心</td><td>F</td><td>jinagyixin@emp.com</td><td>NULL</td><td>28</td><td>9000</td><td>6</td></tr>
-        <tr><td>13</td><td>马文博</td><td>M</td><td>mawenbo@emp.com</td><td>河南</td><td>22</td><td>28000</td><td>7</td></tr>
-        <tr><td>14</td><td>成虎</td><td>M</td><td>chenhu@emp.com</td><td>新疆</td><td>38</td><td>36000</td><td>7</td></tr>
-        </table>
+<body>
 
-        <h2>Table t_dept</h2>
-        <table border="1" class="sql_tab">
-          <tr><th>dept_id</th><th>dept_name</th></tr>
-          <tr><td>1</td><td>人事部</td></tr>
-          <tr><td>2</td><td>产品部</td></tr>
-          <tr><td>3</td><td>技术部</td></tr>
-          <tr><td>4</td><td>运维部</td></tr>
-          <tr><td>5</td><td>财务部</td></tr>
-          <tr><td>6</td><td>采购部</td></tr>
-          <tr><td>7</td><td>研发部</td></tr>
-          </table>
-    </div>
-
+  <header>
     <div class="container">
-      <section id="main_content">
-        {{ content }}
-      </section>
+      <a id="a-title" href="/">
+        <h1>{{site.description}}</h1>
+      </a>
     </div>
+  </header>
 
-    <footer>
-      <div style="text-align: right; margin: 130px  260px 80px 0px;color: #ac4142;">
-        ~ belongs to alamide 
-      </div>
-    </footer>
-  </body>
+  <div class="sql_left_container">
+    <h2>Table t_emp</h2>
+    <table border="1" class="sql_tab">
+      <tr>
+        <th>emp_id</th>
+        <th>emp_name</th>
+        <th>sex</th>
+        <th>email</th>
+        <th>prov</th>
+        <th>age</th>
+        <th>salary</th>
+        <th>dept_id</th>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>李三</td>
+        <td>M</td>
+        <td>lisan@emp.com</td>
+        <td>江苏</td>
+        <td>32</td>
+        <td>18000</td>
+        <td>1</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>王丽</td>
+        <td>F</td>
+        <td>wangli@emp.com</td>
+        <td>山东</td>
+        <td>25</td>
+        <td>9000</td>
+        <td>1</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>王强</td>
+        <td>M</td>
+        <td>wangqiang@emp.com</td>
+        <td>北京</td>
+        <td>42</td>
+        <td>12000</td>
+        <td>2</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>何马</td>
+        <td>M</td>
+        <td>hema@emp.com</td>
+        <td>江苏</td>
+        <td>32</td>
+        <td>8000</td>
+        <td>2</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>赵四海</td>
+        <td>M</td>
+        <td>zhaosihai@emp.com</td>
+        <td>河北</td>
+        <td>32</td>
+        <td>17000</td>
+        <td>3</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td>程兴</td>
+        <td>M</td>
+        <td>chenxing@emp.com</td>
+        <td>武汉</td>
+        <td>32</td>
+        <td>16000</td>
+        <td>3</td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td>孙月</td>
+        <td>F</td>
+        <td>sunyue@emp.com</td>
+        <td>山东</td>
+        <td>22</td>
+        <td>10000</td>
+        <td>4</td>
+      </tr>
+      <tr>
+        <td>8</td>
+        <td>钱金</td>
+        <td>M</td>
+        <td>qianjin@emp.com</td>
+        <td>北京</td>
+        <td>52</td>
+        <td>28000</td>
+        <td>4</td>
+      </tr>
+      <tr>
+        <td>9</td>
+        <td>刘红</td>
+        <td>F</td>
+        <td>liuhong@emp.com</td>
+        <td>安徽</td>
+        <td>22</td>
+        <td>8000</td>
+        <td>5</td>
+      </tr>
+      <tr>
+        <td>10</td>
+        <td>蒋一心</td>
+        <td>F</td>
+        <td>jinagyixin@emp.com</td>
+        <td>山西</td>
+        <td>28</td>
+        <td>9000</td>
+        <td>5</td>
+      </tr>
+      <tr>
+        <td>11</td>
+        <td>刘红</td>
+        <td>F</td>
+        <td>liuhong@emp.com</td>
+        <td>河南</td>
+        <td>22</td>
+        <td>8000</td>
+        <td>6</td>
+      </tr>
+      <tr>
+        <td>12</td>
+        <td>蒋一心</td>
+        <td>F</td>
+        <td>jinagyixin@emp.com</td>
+        <td>NULL</td>
+        <td>28</td>
+        <td>9000</td>
+        <td>6</td>
+      </tr>
+      <tr>
+        <td>13</td>
+        <td>马文博</td>
+        <td>M</td>
+        <td>mawenbo@emp.com</td>
+        <td>河南</td>
+        <td>22</td>
+        <td>28000</td>
+        <td>7</td>
+      </tr>
+      <tr>
+        <td>14</td>
+        <td>成虎</td>
+        <td>M</td>
+        <td>chenhu@emp.com</td>
+        <td>新疆</td>
+        <td>38</td>
+        <td>36000</td>
+        <td>7</td>
+      </tr>
+    </table>
+
+    <h2>Table t_dept</h2>
+    <table border="1" class="sql_tab">
+      <tr>
+        <th>dept_id</th>
+        <th>dept_name</th>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>人事部</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>产品部</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>技术部</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>运维部</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>财务部</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td>采购部</td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td>研发部</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="container">
+    <h1>{{ page.title }}</h1>
+    <small>{{ page.date | date: "%Y-%M-%d" }}, by {{page.author | default: site.author }}</small>
+    <section id="main_content">
+      {{ content }}
+    </section>
+    {% if page.tags %}
+    <small>tags: <em>{{ page.tags | join: "</em> - <em>" }}</em></small>
+    {% endif %}
+  </div>
+
+  <footer>
+    <div style="text-align: right; margin: 130px  260px 80px 0px;color: #ac4142;">
+      ~ belongs to alamide
+    </div>
+  </footer>
+</body>
+
 </html>
