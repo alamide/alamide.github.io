@@ -1,9 +1,10 @@
 ---
-layout: sql
+layout: post
 title:  "MySQL 流程控制函数"
 date:   2023-02-12
 categories: MySQL Functions
 tags: MySQL Functions 
+sql_table: base-sql-table.html
 ---
 
 * IF(expr1, expr2, expr3)
