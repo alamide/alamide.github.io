@@ -24,11 +24,18 @@ description: alamide的笔记库
 author: alamide
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://alamide.github.io" # the base hostname & protocol for your site, e.g. http://example.com
+lang: zh-CN
 twitter_username: jekyllrb
 github_username:  jekyll
 paginate: 10
 paginate_path: "/blog/page:num/"
+excerpt_separator: <!--more-->
 
+collections:
+  db:
+    output: true
+  leetcode:
+    output: true
 # Build settings
 # theme: minima
 remote_theme: pages-themes/hacker@v0.2.0

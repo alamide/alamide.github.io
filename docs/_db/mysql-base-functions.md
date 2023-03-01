@@ -1,10 +1,11 @@
 ---
 layout: post
-title:  "MySQL 流程控制函数"
+title:  "MySQL-Base-Functions"
 date:   2023-02-12
-categories: MySQL Functions
+categories: db
 tags: MySQL Functions 
 sql_table: base-sql-table.html
+excerpt: MySQL 的函数。
 ---
 
 * IF(expr1, expr2, expr3)

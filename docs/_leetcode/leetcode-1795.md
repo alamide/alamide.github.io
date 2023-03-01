@@ -6,9 +6,9 @@ categories: LeetCode SQL
 tags: LeetCode SQL 
 sql_table: sql-leetcode-1795.html
 ---
-### 行转列
 
-* 重构 t_products 表，查询每个产品在不同商店的价格，使得输出的格式变为(product_id, store, price) 即t_trans_products。如果这一产品在商店里没有出售，则不输出这一行。
+重构 t_products 表，查询每个产品在不同商店的价格，使得输出的格式变为(product_id, store, price) 即t_trans_products。如果这一产品在商店里没有出售，则不输出这一行。
+<!--more-->
 
 ```sql
 select product_id, 'store1' as store, store1 as price from t_products where store1 is not null

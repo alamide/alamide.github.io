@@ -9,14 +9,27 @@
 </head>
 
 <body>
-
+  {% assign all_title = site.documents | map: "title"%}
+  {% assign all_index = site.documents | where: "title", "index" %}
+  {% assign blog_num = all_title.size | minus: all_index.size%}
   <header>
     <div class="container">
       <a id="a-title" href="/">
-        <h1>{{site.description}}<span style="font-size: 20px;color: #ac4142;">「{{site.posts.size}}篇笔记」</span></h1>
+        <h1>{{site.description}}<span style="font-size: 20px;color: #ac4142;">「{{blog_num}}篇笔记」</span></h1>
       </a>
+      <div id="div-nav">
+        {% for item in site.data.navigation %}
+          <a id="a-link" href="{{ item.link }}" {% if page.url == item.link %}style="color: red;"{% endif %}>
+            {{ item.name }}
+          </a>
+        {% endfor %}
+        </div>
     </div>
+
+    
   </header>
+  <br/>
+
 
   {% if page.sql_table %}
   <div class="sql_left_container">
