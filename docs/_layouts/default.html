@@ -9,9 +9,9 @@
 </head>
 
 <body>
-  {% assign all_title = site.documents | map: "title"%}
+  {% assign all_title = site.documents | map: "title" %}
   {% assign all_index = site.documents | where: "title", "index" %}
-  {% assign blog_num = all_title.size | minus: all_index.size%}
+  {% assign blog_num = all_title.size | minus: all_index.size %}
   <header>
     <div class="container">
       <a id="a-title" href="/">
@@ -19,9 +19,11 @@
       </a>
       <div id="div-nav">
         {% for item in site.data.navigation %}
-          <a id="a-link" href="{{ item.link }}" {% if page.url == item.link %}style="color: red;"{% endif %}>
-            {{ item.name }}
-          </a>
+        {%assign item_dir = item.link | split: "/" | slice 0,1 | first %}
+        {%assign page_dir = page.url | split: "/" | slice 0,1 | first %}
+        <a id="a-link" href="{{ item.link }}" {% if item_dir == page_dir %}style="color: red;"{% endif %}>
+          {{ item.name }}
+        </a>
         {% endfor %}
         </div>
     </div>
