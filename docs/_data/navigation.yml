@@ -1,6 +1,10 @@
 - name: 主页
   link: /
+- name: Java
+  link: /java/index.html
 - name: 数据库
   link: /db/index.html
-- name: LeetCode
-  link: /leetcode/index.html
+- name: CS
+  link: /cs/index.html
+# - name: LeetCode
+#   link: /leetcode/index.html

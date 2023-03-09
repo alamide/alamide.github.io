@@ -2,6 +2,7 @@
 layout: default
 title: MySQL-Install-Config
 categories: db
+tags: DB MySQL 
 excerpt: MySQL 安装配置。
 ---
 ### 1.安装数据库

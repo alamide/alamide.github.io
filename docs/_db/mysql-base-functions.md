@@ -3,7 +3,7 @@ layout: post
 title:  "MySQL-Base-Functions"
 date:   2023-02-12
 categories: db
-tags: MySQL Functions 
+tags: DB MySQL 
 sql_table: base-sql-table.html
 excerpt: MySQL 的函数。
 ---

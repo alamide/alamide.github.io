@@ -19,8 +19,8 @@
       </a>
       <div id="div-nav">
         {% for item in site.data.navigation %}
-        {%assign item_dir = item.link | split: "/" | slice 0,1 | first %}
-        {%assign page_dir = page.url | split: "/" | slice 0,1 | first %}
+        {%assign item_dir = item.link | split: "/" | slice: 1,2 | first %}
+        {%assign page_dir = page.url | split: "/" | slice: 1,2 | first %}
         <a id="a-link" href="{{ item.link }}" {% if item_dir == page_dir %}style="color: red;"{% endif %}>
           {{ item.name }}
         </a>

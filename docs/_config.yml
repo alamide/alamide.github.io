@@ -34,7 +34,11 @@ excerpt_separator: <!--more-->
 collections:
   db:
     output: true
-  leetcode:
+  # leetcode:
+  #   output: false
+  java:
+    output: true
+  cs:
     output: true
 # Build settings
 # theme: minima
