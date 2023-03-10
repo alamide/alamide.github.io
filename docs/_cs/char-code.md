@@ -2,18 +2,51 @@
 layout: post
 title: 字符编码
 categories: java
-excerpt: 字符编码，Unicode，UTF-8，UTF-16
-tags: code
+excerpt: 字符编码，Unicode，UTF-8，UTF-16，数据加密，数据压缩
+tags: Code ByteBuffer NIO
+date: 2023-03-10
 ---
+Unicode 官网PDF地址 [https://www.unicode.org/charts/](https://www.unicode.org/charts/)
+
+摘抄自 `Unicode` 官网
+>High Surrogate Area<br/>
+Range: D800-DBFF<br/>
+Isolated surrogate code points have no interpretation; consequently, no character code charts or names lists are provided for
+this range.<br/>
+
+>Low Surrogate Area<br/>
+Range: DC00-DFFF<br/>
+Isolated surrogate code points have no interpretation; consequently, no character code charts or names lists are provided for
+this range.
+
+Java 平台是采用 `UTF-16` ，下文摘抄自 `java.lang.Character`
+>The set of characters from U+0000 to U+FFFF is sometimes referred to as the Basic Multilingual Plane (BMP). Characters whose code points are greater than U+FFFF are called supplementary characters. `The Java platform uses the UTF-16 representation in char arrays and in the String and StringBuffer classes.` In this representation, supplementary characters are represented as a pair of char values, the first from the high-surrogates range, (\uD800-\uDBFF), the second from the low-surrogates range (\uDC00-\uDFFF).
+
+### 1.缩写展开
+1. `Universal Multiple-Octet Coded Character Set` 简称 `UCS` 俗称 `Unicode`
+2. `ASCII(American Standard Code for Information Interchange)`
+3. `UTF（UCS Transfer Format）`
+
+### 2.简单描述
 字符在计算机中最终是以二进制的方式存储的，编解码时字符集要一致，否则会出现乱码。常见的字符集有 ASCII，GBK，Unicode等。
-* 一个 ASCII 字符占用一个字节，共有 128 个字符，字节最高位为 0，缺点是不能用于非英语国家字符编码
-* GBK 即汉字内码扩展规范，用于汉字编码，长度为两个字节
+* 一个 `ASCII(American Standard Code for Information Interchange)` 字符占用一个字节，共有 128 个字符，字节最高位为 0，缺点是不能用于非英语国家字符编码。
+
+* GBK 即汉字内码扩展规范，用于汉字编码，长度为两个字节。
+
 * 早期每个不同语种的国家基本上都有自己的一套编码，这样就会产生乱码问题。为了这个问题 Unicode 应运而生，Unicode 将所有语言都统一到一套编码中，这样就不会产生
   乱码问题。 
 
+* Unicode 只是字符集，UTF-8、UTF-16、UTF-32 是真正的字符编码规则。
+
+* UTF-8 变长 `1 byte` `2 bytes` `3 bytes` `4 bytes`
+
+* UTF-16 变长，为 `2 bytes` 或 `4 bytes` 
+
+* UTF-32 定长 `4 bytes`
+
 摘抄自 `The Go Program Language`
 >Long ago, life was simple and there was, at least in a parochial view, only one character set to
-deal with: ASCII, the American Stand ard Code for Information Interchange . ASCII, or more
+deal with: ASCII, the American Standard Code for Information Interchange . ASCII, or more
 precisely US-ASCII, uses 7bits to represent 128 ‘‘characters’’: the upper-and lower-case letters
 of English, digits, and a variety of punctuation and device-control characters. `For much of the
 early days of computing , this was adequate, but it left a very large fraction of the world’s
@@ -45,15 +78,78 @@ encoding for a rune indicate how many bytes follow. A high-order 0 indicates 7-b
 where each rune takes only 1 byte, so it is identical to conventional ASCII. A high-order 110
 indicates that the rune takes 2 bytes; the second byte begins with 10.` Larger runes have analogous encodings.
 
-`0xxxxxxx runes 0−127 (ASCII)`
-
-`110xxxxx 10xxxxxx 128−2047 (values <128 unused)`
-
-`1110xxxx 10xxxxxx 10xxxxxx 2048−65535 (values <2048 unused)`
-
+>`0xxxxxxx runes 0−127 (ASCII)`<br/>
+`110xxxxx 10xxxxxx 128−2047 (values <128 unused)`<br/>
+`1110xxxx 10xxxxxx 10xxxxxx 2048−65535 (values <2048 unused)`<br/>
 `11110xxx 10xxxxxx 10xxxxxx 10xxxxxx 65536−0x10ffff (other values unused)`
 
-### 小实验
+
+### 3.编码规则
+#### UTF-8 编码规则
+解析时就可按照首字节来判断字符所占字节数
+<table border="1" style="border-collapse:collapse">
+  <tr><th>Unicode</th><th>UTF-8</th></tr>
+  <tr><td>0x00-0x7F</td><td>0xxxxxxx</td></tr>
+  <tr><td>0x80-0x7FF</td><td>110xxxxx 10xxxxxx</td></tr>
+  <tr><td>0x800-0xFFFF</td><td>1110xxxx 10xxxxxx 10xxxxxx </td></tr>
+  <tr><td>0x10000-0x10FFFF</td><td>11110xxx 10xxxxxx 10xxxxxx 10xxxxxx</td></tr>
+</table>
+
+#### UTF-16 编码规则
+<table border="1" style="border-collapse:collapse">
+  <tr><th>Unicode</th><th>UTF-16</th></tr>
+  <tr><td>0x0000-0xFFFF</td><td>xxxxxxxx xxxxxxxx</td></tr>
+  <tr><td>0x10000-0x10FFFF</td><td>110110xx xxxxxxxx 110111xx xxxxxxxx</td></tr>
+</table>
+UTF-16 是如何判断字符是占用 `2 bytes` or `4 bytes`？
+
+由于 `Unicode` 规定 `D800-DBFF` 为保留区段（见本文开头摘抄），所以可以据此来判断。参见 `java.lang.Character`
+```java
+
+public static final char MIN_HIGH_SURROGATE = '\uD800';
+
+public static final char MAX_HIGH_SURROGATE = '\uDBFF';
+
+public static final char MIN_LOW_SURROGATE  = '\uDC00';
+
+public static final char MAX_LOW_SURROGATE  = '\uDFFF';
+
+public static final int MIN_SUPPLEMENTARY_CODE_POINT = 0x010000;
+
+/*计算 Unicode 码点*/
+public static int toCodePoint(char high, char low) {
+    return ((high << 10) + low) + (MIN_SUPPLEMENTARY_CODE_POINT
+                                    - (MIN_HIGH_SURROGATE << 10)
+                                    - MIN_LOW_SURROGATE);
+}
+
+public static int codePointAt(CharSequence seq, int index) {
+    char c1 = seq.charAt(index);
+    if (isHighSurrogate(c1) && ++index < seq.length()) {
+        char c2 = seq.charAt(index);
+        if (isLowSurrogate(c2)) {
+            return toCodePoint(c1, c2);
+        }
+    }
+    return c1;
+}
+
+public static boolean isHighSurrogate(char ch) {
+    return ch >= MIN_HIGH_SURROGATE && ch < (MAX_HIGH_SURROGATE + 1);
+}
+
+public static boolean isLowSurrogate(char ch) {
+    return ch >= MIN_LOW_SURROGATE && ch < (MAX_LOW_SURROGATE + 1);
+}
+```
+
+#### UTF-32 编码规则
+<table border="1" style="border-collapse:collapse">
+  <tr><th>Unicode</th><th>UTF-32</th></tr>
+  <tr><td>0x000000-0x10FFFF</td><td>xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx</td></tr>
+</table>
+
+### 4.小实验
 ```java
 @Test
 public void testRuneLength() {
@@ -99,10 +195,7 @@ public void printRuneLength(byte[] bytes) {
 }
 ```
 
-* Java 中 中文采用3个 `byte` 存储一个汉字，1个 `byte` 存储 `ascii` 字符，4个 `byte` 存储 `emoji`
-* 一个 `char` 表示一个中文，一个 `char` 表示一个 `ascaii`，两个 `char` 表示一个 `emoji`
-
-### 自定义编解码
+### 5.自定义编解码
 将字符串编码成 ,xxxx形式，再解码出原内容
 ```java
 @Test
@@ -162,7 +255,7 @@ public String stringToDiy(String str, String separator) {
     return out.toString();
 }
 ```
-### 小进阶
+### 6.小进阶
 
 * 把我们所需要传输的数据以特定的格式（有一定的加密效果）生成，再以特定的格式解析。
 
