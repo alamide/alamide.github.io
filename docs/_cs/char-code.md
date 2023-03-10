@@ -63,8 +63,8 @@ and scripts. How are these represented in computer programs and data? `The natur
 type to hold a single rune is int32`, and that’s what Go uses; it has the synonym rune for
 precisely this purpose.
 
->`We could represent a sequence of runes as a sequence of int32 values. In this represent ation,
-which is calle d UTF-32 or UCS-4, the encoding of each Unicode code point has the same size,
+>`We could represent a sequence of runes as a sequence of int32 values. In this representation,
+which is called UTF-32 or UCS-4, the encoding of each Unicode code point has the same size,
 32 bits. This is simple and uniform, but it uses much more space than necessary since most
 computer-readable text is in ASCII, which requires only 8bits or 1 byte per character. All the
 characters in widespread use still number fewer than 65,536, which would fit in 16 bits. Can
