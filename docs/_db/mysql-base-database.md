@@ -4,6 +4,7 @@ title: MySQL-Base-Database
 categories: db
 excerpt: MySQL 数据库。
 tags: DB MySQL 
+date: 2023-03-10
 ---
 ### 1.一些🍪
 * 创建数据库时需要设置编码方式，一般设置为 utf8mb4(utf8 most bytes 4，可以存储 emoji，utf8最大长度为3个字节，不能存储emoji，latin1不能存储汉字)。

@@ -4,6 +4,7 @@ title: SpringBoot 自动加载机制
 categories: java
 excerpt: SpringBoot 自定加载机制原理
 tags: Java SpringBoot
+date: 2023-03-08
 ---
 
 ```java

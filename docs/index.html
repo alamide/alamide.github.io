@@ -3,8 +3,17 @@ layout: default
 title: My Blog
 ---
 
+{% assign sorted_pages = site.documents | where_exp: "item", "item.title != 'index'" | sort: "date" | reverse | slice: 0, 10 %}
+{% for post in sorted_pages %}
+  <a href="{{ post.url }}" style="font-size: 30px;">{{ post.title }}</a><br/>
+  <small>{{ post.date | date: "%Y-%m-%d" }}, {{page.author | default: site.author }}</small>
+  <div style="font-size: 15px;margin-top: 5px;">
+    {{ post.excerpt }}
+  </div>
+  <div style="height: 20px;"></div>
+{% endfor %}
 <!-- This loops through the paginated posts -->
-{% for post in paginator.posts %}
+<!-- {% for post in paginator.posts %}
   <h1><a href="{{ post.url }}">{{ post.title }}</a></h1>
   <p class="author">
     <span class="date">{{ post.date | date: "%Y-%m-%d" }}, {{page.author | default: site.author }}</span>
@@ -38,6 +47,6 @@ title: My Blog
     <span>后一页</span>
   {% endif %}
 </div>
-{% endif %}
+{% endif %} -->
 
 

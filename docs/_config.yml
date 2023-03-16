@@ -34,11 +34,11 @@ excerpt_separator: <!--more-->
 collections:
   db:
     output: true
-  # leetcode:
-  #   output: false
   java:
     output: true
   cs:
+    output: true
+  third_lib:
     output: true
 # Build settings
 # theme: minima

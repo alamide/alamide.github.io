@@ -6,5 +6,8 @@
   link: /db/index.html
 - name: CS
   link: /cs/index.html
+- name: 类库
+  link: /third_lib/index.html
+
 # - name: LeetCode
 #   link: /leetcode/index.html

@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "MySQL-Base-Functions"
-date:   2023-02-12
+date:  2023-02-12
 categories: db
 tags: DB MySQL 
 sql_table: base-sql-table.html
