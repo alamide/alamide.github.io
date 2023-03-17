@@ -6,7 +6,7 @@ title: My Blog
 {% assign sorted_pages = site.documents | where_exp: "item", "item.title != 'index'" | sort: "date" | reverse | slice: 0, 10 %}
 {% for post in sorted_pages %}
   <a href="{{ post.url }}" style="font-size: 30px;">{{ post.title }}</a><br/>
-  <small>{{ post.date | date: "%Y-%m-%d" }}, {{page.author | default: site.author }}</small>
+  <small style="color: #aa759f;">{{ post.date | date: "%Y-%m-%d" }}, {{page.author | default: site.author }}</small>
   <div style="font-size: 15px;margin-top: 5px;">
     {{ post.excerpt }}
   </div>

@@ -19,6 +19,14 @@ tags: DB MySQL
 
 * 开发中使用 DECIMAL
 
+* `DDL(Data Definition Language)` ，如 `CREATE` 、`ALTER` 、`DROP` 、`TRUNCATE`
+
+* `DML(Data Manipulation Language)` ，如 `INSERT` 、`UPDATE` 、`DELETE`
+
+* `DCL(Data Control Language)` ，如常见的授权、取消授权、回滚、提交
+
+* `DQL(Data Query Language)` ，如 `SELECT`
+
 ## 2.数据类型
 ### 2.1 整数类型
 * 可选项 `xxINT[(M)] [UNSIGNED] [ZEROFILL]`  `M` 表示显示宽度，不会对插入的数据有任何影响
