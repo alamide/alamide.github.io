@@ -167,6 +167,26 @@ public void testBatchInsert() throws SQLException {
     connection.close();
 }
 ```
+#### 5.2.3 插入数据返回自增长主键
+有些时候我们需要获取插入数据自动生成的主键值
+```java
+@Test
+public void testReturnAutoIncrementPrimaryKey() throws SQLException {
+    final Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/db_jdbc?rewriteBatchedStatements=true", "root", "root");
+    String insertSQL = "insert into t_dept (dept_name) values (?)";
+    final PreparedStatement preparedStatement = connection.prepareStatement(insertSQL, Statement.RETURN_GENERATED_KEYS);
+    preparedStatement.setObject(1, "法务部");
+    int update = preparedStatement.executeUpdate();
+
+    final ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
+    if(generatedKeys.next()){
+        log.info("generated primary key = {}", generatedKeys.getInt(1));
+    }
+
+    preparedStatement.close();
+    connection.close();
+}
+```
 ### 5.3 数据删除
 ```java
 @Test
@@ -225,5 +245,350 @@ public void testQuery() throws SQLException {
     resultSet.close();
     preparedStatement.close();
     connection.close();
+}
+```
+
+## 6.事务
+> 事务就是一组原子性的SQL查询，或者说一个独立的工作单元。如果数据库引擎能够成功地对数据库应用该组查询的全部语句，那么就执行该组查询。如中有任何一条语句因为崩溃或其他原因无法执行，那么所有语句都不执行。也就是说，事务内的语句，要么全部执行，要么执行失败。（《高性能mysql》）
+
+* 简单理解就是要么都执行，要么都不执行。MySQL 默认是开启自动提交事务的，可以调用 `SET autocommit=off; COMMIT/ROLLBACK;` 来关闭，`JDBC` 中使用 `connection.setAutoCommit(false);` ， `connection.commit();` ，`connection.rollback();`
+
+* 事务的开启需要与提交，要是同一个 `Connection` 。
+### 6.1 未开启事务可能引发的问题
+数据库如下，`balance` 类型为 `INTEGER UNSIGNED`
+<table border="1">
+<tr><th>id</th><th>account</th><th>balance</th></tr>
+<tr><td>1</td><td>8859-1</td><td>2000</td></tr>
+<tr><td>2</td><td>8859-2</td><td>2000</td></tr>
+</table>
+
+```java
+@Test
+public void testAutoCommit() throws SQLException {
+    final Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/db_jdbc", "root", "root");
+    addMoney(con, "8859-1", 2500);
+    subMoney(con, "8859-2", 2500);
+    con.close();
+}
+
+public void addMoney(Connection con, String account, int money) throws SQLException {
+    final PreparedStatement preparedStatement = con.prepareStatement("update t_account set balance=balance+? where account=?");
+    preparedStatement.setObject(1, money);
+    preparedStatement.setObject(2, account);
+    preparedStatement.executeUpdate();
+    preparedStatement.close();
+}
+
+public void subMoney(Connection con, String account, int money) throws SQLException {
+    final PreparedStatement preparedStatement = con.prepareStatement("update t_account set balance=balance-? where account=?");
+    preparedStatement.setObject(1, money);
+    preparedStatement.setObject(2, account);
+    preparedStatement.executeUpdate();
+    preparedStatement.close();
+}
+```
+可以看到程序出错终止，因为 `balance` 为 `INTEGER UNSIGNED` 。而数据库已经被修改为
+<table border="1">
+<tr><th>id</th><th>account</th><th>balance</th></tr>
+<tr><td>1</td><td>8859-1</td><td>4500</td></tr>
+<tr><td>2</td><td>8859-2</td><td>2000</td></tr>
+</table>
+这是严重的错误
+
+### 6.2 开启事务
+开启事务之后会解决上述问题
+```java
+@Test
+public void testCommit() throws SQLException {
+    Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/db_jdbc", "root", "root");
+    try {
+        con.setAutoCommit(false);
+        addMoney(con, "8859-1", 2500);
+        subMoney(con, "8859-2", 2500);
+        con.commit();
+    } catch (Exception exception) {
+        con.rollback();
+    }finally {
+        con.close();
+    }
+}
+```
+
+## 7.数据库连接池
+* 数据库连接的创建和关闭会消耗大量资源，所以应该尽可能的复用数据库连接，数据库连接池就是这样一种技术，可以重复使用已创建的数据库连接。
+
+* Java 官方定制了 `javax.sql.DataSource` 接口规范，市场上有多种实现，有 `C3P0` 、`DBCP` 、`Hikari` 、`Druid` 等。其中 `Hikari` 性能较优， 阿里的 `Druid` 较为全面。这里我们使用阿里的 `Druid` 。
+
+* `Druid` [https://github.com/alibaba/druid](https://github.com/alibaba/druid)
+
+### 7.1 引入 Druid
+```xml
+<dependency>
+  <groupId>com.alibaba</groupId>
+  <artifactId>druid</artifactId>
+  <version>1.2.16</version>
+</dependency>
+```
+### 7.2 使用 Druid
+#### 7.2.1 硬编码
+```java
+@Test
+public void testHardDruid() throws SQLException {
+    final DruidDataSource dataSource = new DruidDataSource();
+    
+    dataSource.setUrl("jdbc:mysql://localhost:3306/db_jdbc");
+    dataSource.setUsername("root");
+    dataSource.setPassword("root");
+    dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
+
+    final Connection connection = dataSource.getConnection();
+    connection.close();
+}
+```
+#### 7.2.2 软编码（推荐）
+jdbc.properties
+
+```
+driverClassName=com.mysql.cj.jdbc.Driver
+url=jdbc:mysql://localhost:3306/db_jdbc
+username=root
+password=root
+```
+
+```java
+@Test
+public void testSoftDruid() throws Exception {
+
+    Properties properties = new Properties();
+    final InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("jdbc.properties");
+    properties.load(inputStream);
+    final DataSource dataSource = DruidDataSourceFactory.createDataSource(properties);
+    final Connection connection = dataSource.getConnection();
+
+    inputStream.close();
+    connection.close();
+}
+```
+## 8.自定义工具类
+所有对数据库的操作可以分为两类，一种是查询，另一种是更新。
+* 查询返回的是 `List<T>` ，一条数据 `List` 的 `size` 即为 `1`，无数据 `size` 为 `0` ，类型 `T` 的实例对象可以依据 `MetaData` 来创建。
+
+* 更新包括插入、删除、更新，返回的是影响数据的行数，或返回自增长的主键值。可以用一个对象封装
+
+### 8.1 初步
+```java
+public  abstract class BaseDao {
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UpdateInfo {
+        private Integer effectedRows;
+        private Integer autoIncrementPrimaryKey;
+    }
+
+    protected <T> T queryForBean(Connection con, Class<T> clazz, String sql, Object... args) throws Exception {
+        final PreparedStatement preparedStatement = con.prepareStatement(sql);
+        final List<T> queryList = query(con, clazz, sql, args);
+
+        if (queryList.size() > 0) {
+            return queryList.get(0);
+        }
+
+        return null;
+    }
+
+    protected <T> List<T> query(Connection con, Class<T> clazz, String sql, Object... args) throws Exception {
+        final PreparedStatement preparedStatement = con.prepareStatement(sql);
+        for (int i = 1; i <= args.length; i++) {
+            preparedStatement.setObject(i, args[i - 1]);
+        }
+        final ResultSet resultSet = preparedStatement.executeQuery();
+        final ResultSetMetaData metaData = resultSet.getMetaData();
+
+        List<T> queryList = new ArrayList<>();
+        while (resultSet.next()) {
+            T item = clazz.newInstance();
+            for (int i = 1; i <= metaData.getColumnCount(); i++) {
+                final Field declaredField = clazz.getDeclaredField(StringUtils.underScoreToCamel(metaData.getColumnLabel(i)));
+                declaredField.setAccessible(true);
+                declaredField.set(item, resultSet.getObject(i));
+            }
+            queryList.add(item);
+        }
+
+        return queryList;
+    }
+
+    protected int update(Connection con, String sql, Object... args) throws SQLException {
+        final PreparedStatement preparedStatement = con.prepareStatement(sql);
+        for (int i = 1; i <= args.length; i++) {
+            preparedStatement.setObject(i, args[i - 1]);
+        }
+        return preparedStatement.executeUpdate();
+    }
+
+    protected UpdateInfo updateForGeneratedKey(Connection con, String sql, Object... args) throws SQLException {
+        final PreparedStatement preparedStatement = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+        for (int i = 1; i <= args.length; i++) {
+            preparedStatement.setObject(i, args[i - 1]);
+        }
+
+        UpdateInfo updateInfo = new UpdateInfo();
+        int effectedRows = preparedStatement.executeUpdate();
+        updateInfo.setEffectedRows(effectedRows);
+        final ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
+        if (generatedKeys.next()) {
+            updateInfo.setAutoIncrementPrimaryKey(generatedKeys.getInt(1));
+        }
+
+        return updateInfo;
+    }
+}
+```
+`StringUtils` 临时写的，可能有 `Bug` 
+```java
+public class StringUtils {
+    public static String underScoreToCamel(String underScore) {
+        if (underScore == null || !underScore.contains("_")) {
+            return underScore;
+        }
+
+        StringBuilder stringBuilder = new StringBuilder();
+        char[] charArray = underScore.toCharArray();
+        for (int i = 0; i < underScore.length(); ) {
+            if (charArray[i] == '_') {
+                if (i + 1 < underScore.length()) {
+                    if (charArray[i + 1] == '_') {
+                        i += 1;
+                    } else {
+                        stringBuilder.append(Character.toUpperCase(charArray[i + 1]));
+                        i += 2;
+                    }
+                } else {
+                    i += 1;
+                }
+            } else {
+                stringBuilder.append(charArray[i]);
+                i += 1;
+            }
+
+        }
+
+        return stringBuilder.toString();
+    }
+}
+```
+
+### 8.2 优化
+不传入 `Connection` 参数，因为一次事务操作肯定是在同一个线程内，所以可以采用 `ThreadLocal` 来保存 `Connection` 对象。
+`JDBCUtils`
+```java
+public class JDBCUtils {
+    private static final ThreadLocal<Connection> threadLocal = new ThreadLocal<>();
+    private static DataSource dataSource = null;
+
+    static {
+        Properties properties = new Properties();
+        final InputStream inputStream = JDBCUtils.class.getClassLoader().getResourceAsStream("jdbc.properties");
+        try {
+            properties.load(inputStream);
+            dataSource = DruidDataSourceFactory.createDataSource(properties);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Connection getConnection() throws Exception {
+        Connection con = threadLocal.get();
+        if (con == null) {
+            con = dataSource.getConnection();
+            threadLocal.set(con);
+        }
+        return con;
+    }
+
+    public static void freeConnection() throws SQLException {
+        Connection connection = threadLocal.get();
+        if(connection != null){
+            threadLocal.remove();
+            connection.setAutoCommit(true);
+            connection.close();
+        }
+    }
+}
+```
+`BaseDao`
+```java
+public abstract class BaseDao {
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UpdateInfo {
+        private Integer effectedRows;
+        private Integer autoIncrementPrimaryKey;
+    }
+
+    protected <T> T queryForBean(Class<T> clazz, String sql, Object... args) throws Exception {
+        Connection con = JDBCUtils.getConnection();
+        final PreparedStatement preparedStatement = con.prepareStatement(sql);
+        final List<T> queryList = query(clazz, sql, args);
+
+        if (queryList.size() > 0) {
+            return queryList.get(0);
+        }
+
+        return null;
+    }
+
+    protected <T> List<T> query(Class<T> clazz, String sql, Object... args) throws Exception {
+        Connection con = JDBCUtils.getConnection();
+        final PreparedStatement preparedStatement = con.prepareStatement(sql);
+        for (int i = 1; i <= args.length; i++) {
+            preparedStatement.setObject(i, args[i - 1]);
+        }
+        final ResultSet resultSet = preparedStatement.executeQuery();
+        final ResultSetMetaData metaData = resultSet.getMetaData();
+
+        List<T> queryList = new ArrayList<>();
+        while (resultSet.next()) {
+            T item = clazz.newInstance();
+            for (int i = 1; i <= metaData.getColumnCount(); i++) {
+                final Field declaredField = clazz.getDeclaredField(StringUtils.underScoreToCamel(metaData.getColumnLabel(i)));
+                declaredField.setAccessible(true);
+                declaredField.set(item, resultSet.getObject(i));
+            }
+            queryList.add(item);
+        }
+
+        return queryList;
+    }
+
+    protected int update(String sql, Object... args) throws Exception {
+        Connection con = JDBCUtils.getConnection();
+        final PreparedStatement preparedStatement = con.prepareStatement(sql);
+        for (int i = 1; i <= args.length; i++) {
+            preparedStatement.setObject(i, args[i - 1]);
+        }
+        return preparedStatement.executeUpdate();
+    }
+
+    protected UpdateInfo updateForGeneratedKey(String sql, Object... args) throws Exception {
+        Connection con = JDBCUtils.getConnection();
+        final PreparedStatement preparedStatement = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+        for (int i = 1; i <= args.length; i++) {
+            preparedStatement.setObject(i, args[i - 1]);
+        }
+
+        UpdateInfo updateInfo = new UpdateInfo();
+        int effectedRows = preparedStatement.executeUpdate();
+        updateInfo.setEffectedRows(effectedRows);
+        final ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
+        if (generatedKeys.next()) {
+            updateInfo.setAutoIncrementPrimaryKey(generatedKeys.getInt(1));
+        }
+
+        return updateInfo;
+    }
 }
 ```

@@ -58,6 +58,15 @@ INSERT INTO t_dept (dept_id, dept_name) VALUES (5, '财务部');
 INSERT INTO t_dept (dept_id, dept_name) VALUES (6, '采购部');
 INSERT INTO t_dept (dept_id, dept_name) VALUES (7, '研发部');
 
+DROP TABLE IF EXISTS t_account;
+
+CREATE TABLE t_account (
+    id INTEGER PRIMARY KEY AUTO_INCREMENT,
+    account VARCHAR(20) UNIQUE,
+    balance INTEGER UNSIGNED
+);
+
+INSERT INTO t_account VALUES (NULL, '8859-1', 2000), (NULL, '8859-2', 2000);
 ```
 
 <h2>Table t_emp</h2>
@@ -248,4 +257,11 @@ INSERT INTO t_dept (dept_id, dept_name) VALUES (7, '研发部');
     <td>7</td>
     <td>研发部</td>
   </tr>
+</table>
+
+<h2>Table t_account</h2>
+<table border="1">
+<tr><th>id</th><th>account</th><th>balance</th></tr>
+<tr><td>1</td><td>8859-1</td><td>2000</td></tr>
+<tr><td>2</td><td>8859-2</td><td>2000</td></tr>
 </table>
