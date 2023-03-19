@@ -254,6 +254,7 @@ public void testQuery() throws SQLException {
 * 简单理解就是要么都执行，要么都不执行。MySQL 默认是开启自动提交事务的，可以调用 `SET autocommit=off; COMMIT/ROLLBACK;` 来关闭，`JDBC` 中使用 `connection.setAutoCommit(false);` ， `connection.commit();` ，`connection.rollback();`
 
 * 事务的开启需要与提交，要是同一个 `Connection` 。
+
 ### 6.1 未开启事务可能引发的问题
 数据库如下，`balance` 类型为 `INTEGER UNSIGNED`
 <table border="1">
