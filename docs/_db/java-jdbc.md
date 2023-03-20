@@ -447,35 +447,26 @@ public  abstract class BaseDao {
 ```
 `StringUtils` 临时写的，可能有 `Bug` 
 ```java
-public class StringUtils {
-    public static String underScoreToCamel(String underScore) {
-        if (underScore == null || !underScore.contains("_")) {
-            return underScore;
-        }
-
-        StringBuilder stringBuilder = new StringBuilder();
-        char[] charArray = underScore.toCharArray();
-        for (int i = 0; i < underScore.length(); ) {
-            if (charArray[i] == '_') {
-                if (i + 1 < underScore.length()) {
-                    if (charArray[i + 1] == '_') {
-                        i += 1;
-                    } else {
-                        stringBuilder.append(Character.toUpperCase(charArray[i + 1]));
-                        i += 2;
-                    }
-                } else {
-                    i += 1;
-                }
-            } else {
-                stringBuilder.append(charArray[i]);
-                i += 1;
-            }
-
-        }
-
-        return stringBuilder.toString();
+public static String underScoreToCamel(String underScore) {
+    if (underScore == null || !underScore.contains("_")) {
+        return underScore;
     }
+
+    StringBuilder stringBuilder = new StringBuilder();
+    char[] charArray = underScore.toCharArray();
+    for (int i = 0; i < underScore.length(); ) {
+        if (charArray[i] == '_' && i + 1 < underScore.length() && charArray[i + 1] != '_') {
+            stringBuilder.append(Character.toUpperCase(charArray[i + 1]));
+            i += 2;
+        } else {
+            if(charArray[i] != '_'){
+                stringBuilder.append(charArray[i]);
+            }
+            i += 1;
+        }
+    }
+
+    return stringBuilder.toString();
 }
 ```
 
