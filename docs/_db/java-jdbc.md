@@ -388,7 +388,6 @@ public  abstract class BaseDao {
     }
 
     protected <T> T queryForBean(Connection con, Class<T> clazz, String sql, Object... args) throws Exception {
-        final PreparedStatement preparedStatement = con.prepareStatement(sql);
         final List<T> queryList = query(con, clazz, sql, args);
 
         if (queryList.size() > 0) {
@@ -531,8 +530,6 @@ public abstract class BaseDao {
     }
 
     protected <T> T queryForBean(Class<T> clazz, String sql, Object... args) throws Exception {
-        Connection con = JDBCUtils.getConnection();
-        final PreparedStatement preparedStatement = con.prepareStatement(sql);
         final List<T> queryList = query(clazz, sql, args);
 
         if (queryList.size() > 0) {
