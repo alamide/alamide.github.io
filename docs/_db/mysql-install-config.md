@@ -22,6 +22,39 @@ date: 2023-02-15
    # -d 后台运行
    docker run -p 3306:3306 --name mysqldb003 -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=db03 -d mysql:5.7
    ```
+   注意 `MySQL` 的默认端口号是 `3306` ，当容器端口号设置不为 `3306` 时，需要修改 `MySQL` 配置文件，配置文件位置为 `/etc/mysql/my.cnf`，增加 `port = 3366`，
+   示例如下
+   
+   `/etc/mysql/my.cnf`
+   ```
+   [mysqld]
+   port            = 3366
+   pid-file        = /var/run/mysqld/mysqld.pid
+   socket          = /var/run/mysqld/mysqld.sock
+   datadir         = /var/lib/mysql
+   secure-file-priv= NULL
+   ```
+   
+   第一种修改方法，可能需要安装 `vim`
+   ```shell
+   apt-get update
+   apt-get install vim
+
+   vim /etc/mysql/my.cnf
+
+   docker restart mysqldb003
+   ```
+
+   第二种方法，将容器中的文件复制到本地，修改完之后再放回容器
+   ```shell
+   docker cp mysqldb003:/etc/mysql/my.cnf ~
+
+   vim ~/my.cnf
+
+   docker cp ~/my.cnf mysqldb003:/etc/mysql/my.cnf
+
+   docker restart mysqldb003
+   ```
 4. 登录容器
    ```shell
    docker exec -it mysqldb003 /bin/bash
