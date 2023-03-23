@@ -2,10 +2,4 @@
 layout: default
 title: index
 ---
-<ol>
-  {% for post in site.third_lib %}
-    {% if post.title != "index" %}
-      {% include item-coll-index.html url=post.url  title=post.title excerpt=post.excerpt %}  
-    {% endif %}
-  {% endfor %}
-</ol>
+{% include collections-index.html collections='third_lib'%}

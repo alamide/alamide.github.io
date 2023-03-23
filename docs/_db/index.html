@@ -2,13 +2,7 @@
 layout: default
 title: index
 ---
+{% include collections-index.html collections='db'%}
 
-<ol>
-  {% for post in site.db %}
-    {% if post.title != "index" %}
-      {% include item-coll-index.html url=post.url  title=post.title excerpt=post.excerpt %}  
-    {% endif %}
-  {% endfor %}
-</ol>
 
 

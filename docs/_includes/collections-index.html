@@ -1,0 +1,15 @@
+{% assign posts=site.[include.collections] | where_exp: "item", "item.title != 'index'"| sort: "date" | reverse %}
+<!-- <h3>本部分共 {{posts.size}} 篇笔记</h3> -->
+<ol>
+  {% for post in posts %}
+  <li>
+    <h2>
+      <a href="{{ post.url }}">
+        {{ post.title }}
+      </a>
+    </h2>
+    <small style="color: #aa759f;">{{ post.date | date: "%Y-%m-%d" }}, {{post.author | default: site.author }}</small>
+    <p>{{post.excerpt}}</p>
+  </li>
+  {% endfor %}
+</ol>
