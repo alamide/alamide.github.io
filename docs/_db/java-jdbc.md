@@ -378,7 +378,7 @@ public void testSoftDruid() throws Exception {
 
 ### 8.1 初步
 ```java
-public  abstract class BaseDao {
+public abstract class BaseDao {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor

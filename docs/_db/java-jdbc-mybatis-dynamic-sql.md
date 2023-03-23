@@ -153,7 +153,7 @@ public static String camelToUnderScore(String camel) {
 如果传入的 `empId` 不为空时再将 `emp_id=?` 拼接到 `SQL` 语句中
 
 ### 2.2 &lt;where/&gt;
-`<where/>` 会在需要的时候才会拼接到 `SQL` 语句中，而且还会去掉多余的 `and` 或 `or` 。
+`where` 会在需要的时候才会拼接到 `SQL` 语句中，而且还会去掉多余的 `and` 或 `or` 。
 
 ### 2.3 &lt;choose/&gt;
 `<choose/>` 会从众多条件中选取一个，和 `Java` 中的 `switch` 语句类似。`choose` 对应 `switch` ， `when` 对应 `case` ， `otherwise` 对应于 `default` ，清晰明了。
