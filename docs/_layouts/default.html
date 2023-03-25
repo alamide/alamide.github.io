@@ -6,6 +6,15 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="{{ '/assets/css/style.css?v=' | append: site.github.build_revision | relative_url }}">
+  <script>
+    window.onload = function(){
+      var createdDate = new Date('2023-02-04');
+      var now = new Date();
+      var days = Math.floor((now-createdDate)/1000/60/60/24);
+      var sp = document.getElementById('created_date');
+      sp.innerText = '「 小破站已建 '+days+' 天啦 🐶 」';
+    }
+  </script>
 </head>
 
 <body>
@@ -15,7 +24,8 @@
   <header>
     <div class="container">
       <a id="a-title" href="/">
-        <h1>{{site.description}}<span style="font-size: 20px;color: #ac4142;">「{{blog_num}}篇笔记」</span></h1>
+        <h1>{{site.description}}<span style="font-size: 20px;color: #ac4142;">「{{blog_num}}篇笔记」</span><span id="created_date" style="font-size: 15px;color: #ac4142;">「建站 23 天啦」</span>
+        </h1>
       </a>
       <div id="div-nav">
         {% for item in site.data.navigation %}
