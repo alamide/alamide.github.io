@@ -1,0 +1,46 @@
+---
+layout: post
+title: 2023 Tour Gallery
+categories: other
+tags: Personal Tour Memory
+hideDate: true
+---
+<script>
+  $(function(){
+    var mainContent = document.getElementById("main_content");
+    var imgWidth = Math.floor((mainContent.clientWidth-12)/3);
+    var imgs = $('div.tour-div img');
+    
+    for(var img of imgs){
+      var baseUrl = img.src.substring(0, img.src.indexOf("?"));
+      img.src = `${baseUrl}?x-oss-process=image/resize,h_${imgWidth},w_${imgWidth},m_lfit`;
+      $(img).click(baseUrl, function(event){
+        showBigImg(event.data)
+      })
+    }
+  });
+  $(function(){
+    $("#bigImgDiv").click(function(event){
+      event.currentTarget.style.visibility='hidden';
+      $("#bigImg")[0].src='';
+    })
+  })
+
+  function showBigImg(imgSrc){
+    $('#bigImgDiv')[0].style.visibility='visible';
+    $("#bigImg")[0].src=`${imgSrc}`;
+  }
+</script>
+<p class="tour-p">1月 安徽黄山</p>
+<div id="bigImgDiv" class="tour-div-big-img">
+  <img id="bigImg"src=""/>
+</div>
+<div class="tour-div">
+  <img src="https://alamide.oss-cn-hangzhou.aliyuncs.com/2023-01-huangshan01.jpeg?x-oss-process=image/quality,q_10" alt="黄山" />
+  <img src="https://alamide.oss-cn-hangzhou.aliyuncs.com/2023-01-huangshan02.jpeg?x-oss-process=image/quality,q_10" alt="黄山" />
+  <img src="https://alamide.oss-cn-hangzhou.aliyuncs.com/2023-01-huangshan03.jpeg?x-oss-process=image/quality,q_10" alt="黄山"/>
+</div>
+<p class="tour-p">3月 无锡灵山大佛</p>
+<div class="tour-div">
+  <img src="https://alamide.oss-cn-hangzhou.aliyuncs.com/2023-03-wuxi-lingshan.jpeg?x-oss-process=image/quality,q_10" alt="灵山大佛"/>
+</div>

@@ -8,8 +8,10 @@
         {{ post.title }}
       </a>
     </h2>
-    <small style="color: #aa759f;">{{ post.date | date: "%Y-%m-%d" }}, {{post.author | default: site.author }}</small>
-    <p>{{post.excerpt}}</p>
+    {% unless post.hideDate %}
+      <small style="color: #aa759f;">{{ post.date | date: "%Y-%m-%d" }}, {{post.author | default: site.author }}</small>
+      <p>{{post.excerpt}}</p>
+    {% endunless%}
   </li>
   {% endfor %}
 </ol>

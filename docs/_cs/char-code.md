@@ -6,6 +6,7 @@ excerpt: 字符编码，Unicode，UTF-8，UTF-16，数据加密，数据压缩
 tags: Code ByteBuffer NIO
 date: 2023-03-10
 ---
+
 Unicode 官网PDF地址 [https://www.unicode.org/charts/](https://www.unicode.org/charts/)
 
 摘抄自 `Unicode` 官网
@@ -22,12 +23,12 @@ this range.
 Java 平台是采用 `UTF-16` ，下文摘抄自 `java.lang.Character`
 >The set of characters from U+0000 to U+FFFF is sometimes referred to as the Basic Multilingual Plane (BMP). Characters whose code points are greater than U+FFFF are called supplementary characters. `The Java platform uses the UTF-16 representation in char arrays and in the String and StringBuffer classes.` In this representation, supplementary characters are represented as a pair of char values, the first from the high-surrogates range, (\uD800-\uDBFF), the second from the low-surrogates range (\uDC00-\uDFFF).
 
-### 1.缩写展开
+## 1.缩写展开
 1. `Universal Multiple-Octet Coded Character Set` 简称 `UCS` 俗称 `Unicode`
 2. `ASCII(American Standard Code for Information Interchange)`
 3. `UTF（UCS Transfer Format）`
 
-### 2.简单描述
+## 2.简单描述
 字符在计算机中最终是以二进制的方式存储的，编解码时字符集要一致，否则会出现乱码。常见的字符集有 ASCII，GBK，Unicode等。
 * 一个 `ASCII(American Standard Code for Information Interchange)` 字符占用一个字节，共有 128 个字符，字节最高位为 0，缺点是不能用于非英语国家字符编码。
 
@@ -84,8 +85,8 @@ indicates that the rune takes 2 bytes; the second byte begins with 10.` Larger r
 `11110xxx 10xxxxxx 10xxxxxx 10xxxxxx 65536−0x10ffff (other values unused)`
 
 
-### 3.编码规则
-#### UTF-8 编码规则
+## 3.编码规则
+### UTF-8 编码规则
 解析时就可按照首字节来判断字符所占字节数
 <table border="1" style="border-collapse:collapse">
   <tr><th>Unicode</th><th>UTF-8</th></tr>
@@ -95,7 +96,7 @@ indicates that the rune takes 2 bytes; the second byte begins with 10.` Larger r
   <tr><td>0x10000-0x10FFFF</td><td>11110xxx 10xxxxxx 10xxxxxx 10xxxxxx</td></tr>
 </table>
 
-#### UTF-16 编码规则
+### UTF-16 编码规则
 <table border="1" style="border-collapse:collapse">
   <tr><th>Unicode</th><th>UTF-16</th></tr>
   <tr><td>0x0000-0xFFFF</td><td>xxxxxxxx xxxxxxxx</td></tr>
@@ -143,13 +144,13 @@ public static boolean isLowSurrogate(char ch) {
 }
 ```
 
-#### UTF-32 编码规则
+### UTF-32 编码规则
 <table border="1" style="border-collapse:collapse">
   <tr><th>Unicode</th><th>UTF-32</th></tr>
   <tr><td>0x000000-0x10FFFF</td><td>xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx</td></tr>
 </table>
 
-### 4.小实验
+## 4.小实验
 ```java
 @Test
 public void testRuneLength() {
@@ -195,7 +196,7 @@ public void printRuneLength(byte[] bytes) {
 }
 ```
 
-### 5.自定义编解码
+## 5.自定义编解码
 将字符串编码成 ,xxxx形式，再解码出原内容
 ```java
 @Test
@@ -255,7 +256,7 @@ public String stringToDiy(String str, String separator) {
     return out.toString();
 }
 ```
-### 6.小进阶
+## 6.小进阶
 
 * 把我们所需要传输的数据以特定的格式（有一定的加密效果）生成，再以特定的格式解析。
 

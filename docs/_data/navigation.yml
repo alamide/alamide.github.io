@@ -8,6 +8,8 @@
   link: /cs/index.html
 - name: 类库
   link: /third_lib/index.html
+- name: 随记
+  link: /other/index.html
 
 # - name: LeetCode
 #   link: /leetcode/index.html

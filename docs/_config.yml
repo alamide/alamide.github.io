@@ -25,11 +25,11 @@ author: alamide
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://alamide.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 lang: zh-CN
-twitter_username: jekyllrb
-github_username:  jekyll
+github_username:  alamide
 paginate: 10
 paginate_path: "/blog/page:num/"
 excerpt_separator: <!--more-->
+created_date: 2023-02-04
 
 collections:
   db:
@@ -39,6 +39,8 @@ collections:
   cs:
     output: true
   third_lib:
+    output: true
+  other:
     output: true
 # Build settings
 # theme: minima
