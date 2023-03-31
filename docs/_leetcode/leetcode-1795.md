@@ -17,7 +17,7 @@ select product_id, 'store2' as store, store2 as price from t_products where stor
 union all
 select product_id, 'store3' as store, store3 as price from t_products where store3 is not null;
 ```
-<table border="1" style="border-collapse:collapse">
+<table>
   <tr><th>product_id</th><th>store</th><th>price</th></tr>
   <tr><td>0</td><td>store1</td><td>95</td></tr>
   <tr><td>0</td><td>store2</td><td>100</td></tr>
@@ -50,7 +50,7 @@ select
 from t_trans_products
 group by product_id;
 ```
-<table border="1" style="border-collapse:collapse">
+<table>
   <tr><th>product_id</th><th>store1</th><th>store2</th><th>store3</th></tr>
   <tr><td>0</td><td>95</td><td>100</td><td>105</td></tr>
   <tr><td>1</td><td>70</td><td>NULL</td><td>80</td></tr>

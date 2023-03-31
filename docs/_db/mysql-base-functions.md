@@ -16,7 +16,7 @@ excerpt: MySQL 的函数。
 ```sql
 select emp_id, emp_name, if(sex='M', 'F', 'M') as reverse_sex from t_emp where emp_id < 6;
 ```
-<table border="1" class="sql_tab">
+<table>
 <tr><th>emp_id</th><th>emp_name</th><th>reverse_sex</th></tr>
 <tr><td>1</td><td>李三</td><td>F</td></tr>
 <tr><td>2</td><td>王丽</td><td>M</td></tr>
@@ -30,7 +30,7 @@ select emp_id, emp_name, if(sex='M', 'F', 'M') as reverse_sex from t_emp where e
 ```sql
 select emp_id, emp_name, IFNULL(prov, '中国') as country from t_emp where prov IS NULL;
 ```
-<table border="1" class="sql_tab">
+<table>
 <tr><th>emp_id</th><th>emp_name</th><th>country</th></tr>
 <tr><td>12</td><td>蒋一心</td><td>中国</td></tr>
 </table>
@@ -58,7 +58,7 @@ select emp_id, emp_name, salary,
 from t_emp where emp_id < 5;
 ```
 
-<table border="1" class="sql_tab">
+<table>
 <tr><th>emp_id</th><th>emp_name</th><th>salary</th><th>tax</th></tr>
 <tr><td>1</td><td>李三</td><td>18000</td><td>2200.00</td></tr>
 <tr><td>2</td><td>王丽</td><td>9000</td><td>900.00</td></tr>
@@ -80,7 +80,7 @@ select emp_id, emp_name,
 from t_emp where emp_id < 5;
 ```
 
-<table border="1" class="sql_tab">
+<table>
 <tr><th>emp_id</th><th>emp_name</th><th>性别</th></tr>
 <tr><td>1</td><td>李三</td><td>男</td></tr>
 <tr><td>2</td><td>王丽</td><td>女</td></tr>
@@ -97,7 +97,7 @@ Returns NULL if expr1 = expr2 is true, otherwise returns expr1.
 select emp_id, emp_name, NULLIF(dept_id, 5) as dept_id from t_emp where emp_id > 6;
 ```
 
-<table border="1" style="border-collapse:collapse">
+<table>
 <tr><th>emp_id</th><th>emp_name</th><th>dept_id</th></tr>
 <tr><td>7</td><td>孙月</td><td>4</td></tr>
 <tr><td>8</td><td>钱金</td><td>4</td></tr>

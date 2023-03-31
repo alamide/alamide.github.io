@@ -69,7 +69,7 @@ date: 2023-02-15
 ```shell
 mysql> show variables like '%general_log%';
 ```
-<table border="1">
+<table>
    <tr><th>Variable_name</th><th>Value</th></tr>
    <tr><td>general_log</td><td>ON</td></tr>
    <tr><td>general_log_file</td><td>/var/lib/mysql/0e8f412b5f18.log</td></tr>

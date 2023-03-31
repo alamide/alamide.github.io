@@ -11,7 +11,7 @@ date: 2023-03-23
 ## 1.场景引入
 有这样一个张表
 `t_emp`
-<table border="1" class="sql_tab">
+<table>
   <tr>
     <th>emp_id</th>
     <th>emp_name</th>

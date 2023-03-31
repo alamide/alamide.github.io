@@ -32,7 +32,7 @@ tags: DB MySQL
 * 可选项 `xxINT[(M)] [UNSIGNED] [ZEROFILL]`  `M` 表示显示宽度，不会对插入的数据有任何影响
 
 * `BIT(M) 	1 <= M <= 64  约为(M + 7)/8个字节`
-<table border="1" class="sql_tab">
+<table>
   <tr>
     <th>Type</th>
     <th>Storage (Bytes)</th>
@@ -139,7 +139,7 @@ out:
 ### 2.5 时间
 #### 2.5.1 数据类型
 
-<table border="1" class="sql_tab">
+<table>
   <tr>
     <th>类型</th>
     <th>字节</th>
@@ -204,7 +204,7 @@ VALUES  (1, 2023, '21:21:03', '2023-03-15', '2023-03-15 21:21:03', '2023-03-15 2
 SELECT * FROM t_date;
 ```
 
-<table border="1" class="sql_tab">
+<table>
   <tr><th>id</th><th>year</th><th>time</th><th>date</th><th>date_time</th><th>time_stamp</th></tr>
   <tr><td>1</td><td>2023</td><td>21:21:03</td><td>2023-03-15</td><td>2023-03-15 21:21:03</td><td>2023-03-15 21:21:03</td></tr>
 </table>
@@ -214,7 +214,7 @@ SELECT * FROM t_date;
 SET time_zone = 'US/Eastern'; -- 改变当前 Session 的时区，并不会影响其它 Session (SET GLOBAL time_zone = timezone; 改变全局)
 SELECT * FROM t_date;
 ```
-<table border="1" style="border-collapse:collapse">
+<table>
 <tr><th>id</th><th>year</th><th>time</th><th>date</th><th>date_time</th><th>time_stamp</th></tr>
 <tr><td>1</td><td>2023</td><td>21:21:03</td><td>2023-03-15</td><td>2023-03-15 21:21:03</td><td>2023-03-15 17:21:03</td></tr>
 </table>

@@ -19,7 +19,7 @@ date: 2023-03-10
 ```sql
 SHOW CHARACTER SET LIKE 'utf%';
 ```
-<table border="1" style="border-collapse:collapse">
+<table>
 <tr><th>Charset</th><th>Description</th><th>Default collation</th><th>Maxlen</th></tr>
 <tr><td>utf8</td><td>UTF-8 Unicode</td><td>utf8_general_ci</td><td>3</td></tr>
 <tr><td>utf8mb4</td><td>UTF-8 Unicode</td><td>utf8mb4_general_ci</td><td>4</td></tr>

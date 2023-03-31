@@ -119,7 +119,7 @@ public void testQuery() throws IOException {
 ## 3.配置文件
 ### 3.1 &lt;settings/&gt;
 这是 MyBatis 中极为重要的调整设置，它们会改变 MyBatis 的运行时行为。下面记录一些常用到的，
-<table border="1">
+<table>
 <tr><th>设置名</th><th>描述</th><th>有效值</th><th>默认值</th></tr>
 <tr><td>cacheEnabled</td><td>全局性地开启或关闭所有映射器配置文件中已配置的任何缓存。</td><td>	true | false</td><td>true</td></tr>
 <tr><td>lazyLoadingEnabled</td><td>延迟加载的全局开关。当开启时，所有关联对象都会延迟加载。 特定关联关系中可通过设置 fetchType 属性来覆盖该项的开关状态。</td><td>true | false</td><td>false</td></tr>
@@ -158,7 +158,7 @@ public void testQuery() throws IOException {
 ```
 
 `Mybatis` 有一些内建的类型别名，同样是不区分大小写。还可以自定义类型处理器，具体见官方文档。
-<table border="1">
+<table>
 <tr><th>别名</th><th>类型映射</th></tr>
 <tr><td>int</td><td>Integer</td></tr>
 <tr><td>integer</td><td>Integer</td></tr>
@@ -358,7 +358,7 @@ public void testQuery() throws IOException {
 }
 ```
 常用属性
-<table border="1">
+<table>
   <tr><th>属性</th><th>描述</th></tr>
   <tr><td>id</td><td>命名空间中唯一的标识，与映射接口中方法名对应</td></tr>
   <tr><td>parameterType</td><td>传入参数类型，不常用</td></tr>
@@ -368,7 +368,7 @@ public void testQuery() throws IOException {
 </table>
 
 ### 4.2 &lt;insert/&gt;
-<table border="1">
+<table>
   <tr><th>属性</th><th>描述</th></tr>
   <tr><td>id</td><td>命名空间中唯一的标识，与映射接口中方法名对应</td></tr>
   <tr><td>parameterType</td><td>传入参数类型，不常用</td></tr>

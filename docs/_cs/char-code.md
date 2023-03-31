@@ -88,7 +88,7 @@ indicates that the rune takes 2 bytes; the second byte begins with 10.` Larger r
 ## 3.编码规则
 ### UTF-8 编码规则
 解析时就可按照首字节来判断字符所占字节数
-<table border="1" style="border-collapse:collapse">
+<table>
   <tr><th>Unicode</th><th>UTF-8</th></tr>
   <tr><td>0x00-0x7F</td><td>0xxxxxxx</td></tr>
   <tr><td>0x80-0x7FF</td><td>110xxxxx 10xxxxxx</td></tr>
@@ -97,7 +97,7 @@ indicates that the rune takes 2 bytes; the second byte begins with 10.` Larger r
 </table>
 
 ### UTF-16 编码规则
-<table border="1" style="border-collapse:collapse">
+<table>
   <tr><th>Unicode</th><th>UTF-16</th></tr>
   <tr><td>0x0000-0xFFFF</td><td>xxxxxxxx xxxxxxxx</td></tr>
   <tr><td>0x10000-0x10FFFF</td><td>110110xx xxxxxxxx 110111xx xxxxxxxx</td></tr>
@@ -145,7 +145,7 @@ public static boolean isLowSurrogate(char ch) {
 ```
 
 ### UTF-32 编码规则
-<table border="1" style="border-collapse:collapse">
+<table>
   <tr><th>Unicode</th><th>UTF-32</th></tr>
   <tr><td>0x000000-0x10FFFF</td><td>xxxxxxxx xxxxxxxx xxxxxxxx xxxxxxxx</td></tr>
 </table>

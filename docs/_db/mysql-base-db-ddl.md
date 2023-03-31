@@ -70,7 +70,7 @@ INSERT INTO t_account VALUES (NULL, '8859-1', 2000), (NULL, '8859-2', 2000);
 ```
 
 <h2>Table t_emp</h2>
-<table border="1" class="sql_tab">
+<table>
   <tr>
     <th>emp_id</th>
     <th>emp_name</th>
@@ -224,7 +224,7 @@ INSERT INTO t_account VALUES (NULL, '8859-1', 2000), (NULL, '8859-2', 2000);
 </table>
 
 <h2>Table t_dept</h2>
-<table border="1" class="sql_tab">
+<table>
   <tr>
     <th>dept_id</th>
     <th>dept_name</th>
@@ -260,7 +260,7 @@ INSERT INTO t_account VALUES (NULL, '8859-1', 2000), (NULL, '8859-2', 2000);
 </table>
 
 <h2>Table t_account</h2>
-<table border="1">
+<table>
 <tr><th>id</th><th>account</th><th>balance</th></tr>
 <tr><td>1</td><td>8859-1</td><td>2000</td></tr>
 <tr><td>2</td><td>8859-2</td><td>2000</td></tr>

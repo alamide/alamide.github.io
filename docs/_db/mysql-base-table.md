@@ -10,7 +10,7 @@ date: 2023-03-16
 ### 1.数据类型
 #### 1.1 整数类型
 
-<table border="1" class="sql_tab">
+<table>
   <tr>
     <th>Type</th>
     <th>Storage (Bytes)</th>

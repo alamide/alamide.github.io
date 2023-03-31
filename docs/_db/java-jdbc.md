@@ -118,7 +118,7 @@ public static void testPreparedStatement() throws SQLException {
 SELECT 1 + '10or w', 1 + '1 or 1=1', 1 + 'asss';
 ```
 out:
-<table border="1">
+<table>
   <tr><th>1 + &#39;10or w&#39;</th><th>1 + &#39;1 or 1=1&#39;</th><th>1 + &#39;asss&#39;</th></tr>
   <tr><td>11</td><td>2</td><td>1</td></tr>
 </table>
@@ -257,7 +257,7 @@ public void testQuery() throws SQLException {
 
 ### 6.1 未开启事务可能引发的问题
 数据库如下，`balance` 类型为 `INTEGER UNSIGNED`
-<table border="1">
+<table>
 <tr><th>id</th><th>account</th><th>balance</th></tr>
 <tr><td>1</td><td>8859-1</td><td>2000</td></tr>
 <tr><td>2</td><td>8859-2</td><td>2000</td></tr>
@@ -289,7 +289,7 @@ public void subMoney(Connection con, String account, int money) throws SQLExcept
 }
 ```
 可以看到程序出错终止，因为 `balance` 为 `INTEGER UNSIGNED` 。而数据库已经被修改为
-<table border="1">
+<table>
 <tr><th>id</th><th>account</th><th>balance</th></tr>
 <tr><td>1</td><td>8859-1</td><td>4500</td></tr>
 <tr><td>2</td><td>8859-2</td><td>2000</td></tr>

@@ -44,7 +44,7 @@ public class Dept implements Serializable{
 }
 ```
 `t_emp`
-<table border="1" class="sql_tab">
+<table>
   <tr>
     <th>emp_id</th>
     <th>emp_name</th>
@@ -58,7 +58,7 @@ public class Dept implements Serializable{
 </table>
 
 `t_dept`
-<table border="1" class="sql_tab">
+<table>
   <tr>
     <th>dept_id</th>
     <th>dept_name</th>

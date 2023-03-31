@@ -4,11 +4,6 @@
 
 header h1:before { content: ""; font-size: 24px; }
 
-.sql_tab{
-  font-size: 10px;
-  border-collapse: collapse;
-}
-
 .sql_left_container{
   float: left; 
   width: auto; 
@@ -29,6 +24,18 @@ header h1:before { content: ""; font-size: 24px; }
 table {
   font-size: 10px;
   border-collapse: collapse;
+}
+
+td {
+  border-bottom: 1px solid #808080;
+  border-left: 1px solid #808080;
+  border-right: 1px solid #808080;
+}
+
+th {
+  border: 1px solid #808080;
+  border-bottom: 1px dashed #b5e853;
+  border-top: 1px solid #808080;
 }
 
 #a-link { 
