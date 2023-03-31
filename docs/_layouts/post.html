@@ -7,8 +7,13 @@ layout: default
 
 {{content}}
 
+<div style="height: 10px;"></div>
+
 {% if page.tags %}
-  <small>tags: <em>{{ page.tags | join: "</em> - <em>" }}</em></small>
+  <small>Tags: <em>{{ page.tags | join: "</em> - <em>" }}</em></small>
 {% endif %}
+<div style="height:140px;display:flex;justify-content:flex-end;align-items:end;color:#ac4142;padding-bottom: 10px;">
+  <small>~ belongs to alamide@163.com</small>
+</div>
 
 
