@@ -66,8 +66,9 @@ p{
   align-items: center;
   flex-wrap: wrap;
   img {
-    width: calc((100% - 12px)/3);
-    padding: 2px;
+    width: calc((100% - 9px)/3);
+    height: auto;
+    padding: 1.5px;
     cursor: pointer;
   }
 }
