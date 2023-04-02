@@ -2,7 +2,7 @@
 layout: post
 title: MyBatis 使用文档
 categories: db
-tags: jdbc mybatis
+tags: Mybatis
 date: 2023-03-20
 excerpt: MyBatis 的基本使用方法，及如何整合进工程中。
 ---

@@ -2,7 +2,7 @@
 layout: post
 title: MyBatis ResultMap
 categories: db
-tags: jdbc mybatis resultMap
+tags: Mybatis
 date: 2023-03-22
 ---
 
