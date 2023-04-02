@@ -67,9 +67,9 @@ p{
   flex-wrap: wrap;
   img {
     width: calc((100% - 9px)/3);
-    height: auto;
     padding: 1.5px;
     cursor: pointer;
+    aspect-ratio: 4/3;
   }
 }
 
