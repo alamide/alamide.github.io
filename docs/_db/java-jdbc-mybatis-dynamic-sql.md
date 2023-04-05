@@ -4,6 +4,7 @@ title: MyBatis 动态SQL
 categories: db
 tags: Mybatis
 date: 2023-03-23
+isHidden: true
 ---
 动态 SQL 是 MyBatis 的强大特性之一。如果你使用过 JDBC 或其它类似的框架，你应该能理解根据不同条件拼接 SQL 语句有多痛苦，例如拼接时要确保不能忘记添加必要的空格，还要注意去掉列表最后一个列名的逗号。利用动态 SQL，可以彻底摆脱这种痛苦。
 <!--more-->

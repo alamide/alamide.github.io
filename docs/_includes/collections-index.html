@@ -1,4 +1,4 @@
-{% assign posts=site.[include.collections] | where_exp: "item", "item.title != 'index'"| sort: "date" | reverse %}
+{% assign posts=site.[include.collections] | where_exp: "item", "item.title != 'index'"|  where_exp: "item", "item.isHidden != true"| sort: "date" | reverse %}
 <!-- <h3>本部分共 {{posts.size}} 篇笔记</h3> -->
 <ol>
   {% for post in posts %}

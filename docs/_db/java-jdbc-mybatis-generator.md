@@ -4,6 +4,7 @@ title: MyBatis Generator
 categories: db
 tags: Mybatis
 date: 2023-04-02
+isHidden: true
 excerpt: Mybatis 逆向生成工具，可以依据数据库中表结构自动生成 POJO、*Mapper.xml、*Mapper.java
 ---
 
@@ -158,6 +159,15 @@ excerpt: Mybatis 逆向生成工具，可以依据数据库中表结构自动生
 * `tableName` 表名
 
 * `domainObjectName` 生成的 `Java Model` 类名，不配置则依据表名生成
+
+#### 3.6.1 &lt;columnOverride&gt; 
+可以在生成 `Java Model` 的时候，对字段进行一些转换，例如数据库的有一些表中，有 `is_deleted` 软删除字段，类型为 `TINYINT` 。默认会被转换为 `Byte` 型，
+在使用的时候会有一些不便，希望转换为 `Integer` 型
+```xml
+<table tableName="t_example">
+    <columnOverride column="is_deleted" jdbcType="TINYINT" javaType="java.lang.Integer"/>
+</table>
+```
 
 ### 3.7 &lt;javaTypeResolver/&gt;
 类型转换器
