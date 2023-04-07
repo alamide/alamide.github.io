@@ -11,6 +11,8 @@ date: 2023-03-17
 ```sql
 CREATE DATABASE IF NOT EXISTS db_jdbc CHARACTER SET utf8mb4;
 
+USE db_jdbc;
+
 DROP TABLE IF EXISTS t_emp;
 
 CREATE TABLE t_emp
