@@ -12,25 +12,32 @@ excerpt: Mybatis 逆向生成工具，可以依据数据库中表结构自动生
 
 ## 1. 引入插件
 ```xml
-<project ...>
-    ...
-    <build>
-    ...
+<build>
     <plugins>
-    ...
-    <plugin>
-        <groupId>org.mybatis.generator</groupId>
-        <artifactId>mybatis-generator-maven-plugin</artifactId>
-        <version>1.4.2</version>
-    </plugin>
-    ...
+        <plugin>
+            <groupId>org.mybatis.generator</groupId>
+            <artifactId>mybatis-generator-maven-plugin</artifactId>
+            <version>1.4.2</version>
+            <dependencies>
+                <dependency>
+                    <groupId>org.mybatis</groupId>
+                    <artifactId>mybatis</artifactId>
+                    <version>3.5.13</version>
+                </dependency>
+                <dependency>
+                    <groupId>mysql</groupId>
+                    <artifactId>mysql-connector-java</artifactId>
+                    <version>8.0.32</version>
+                </dependency>
+            </dependencies>
+        </plugin>
     </plugins>
-    ...
 </build>
 ...
 </project>
 ```
 ## 2. 配置文件
+`generatorConfig.xml`
 ```xml
 <!DOCTYPE generatorConfiguration PUBLIC
         "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
@@ -44,6 +51,11 @@ excerpt: Mybatis 逆向生成工具，可以依据数据库中表结构自动生
                         connectionURL="jdbc:mysql://localhost:3306/mybatis_generator"
                         password="root"
                         userId="root"/>
+
+        <javaTypeResolver>
+            <property name="useJSR310Types" value="true"/>
+            <property name="forceBigDecimals" value="true"/>
+        </javaTypeResolver>
 
         <javaModelGenerator targetPackage="com.alamide.guli.entity" targetProject="src/main/java">
             <property name="exampleTargetPackage" value="com.alamide.generator.entity.example"/>

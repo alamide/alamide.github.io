@@ -1,10 +1,10 @@
 ---
 layout: post
-title: MyBatis 使用文档
+title: MyBatis 相关的文档
 categories: db
 tags: Mybatis
 date: 2023-03-20
-excerpt: MyBatis 的基本使用方法，及如何整合进工程中。
+excerpt: MyBatis 相关的文档。
 ---
 1. [Mybatis 使用文档](./java-jdbc-mybatis.html)
 
@@ -15,3 +15,5 @@ excerpt: MyBatis 的基本使用方法，及如何整合进工程中。
 4. [Mybatis Generator](./java-jdbc-mybatis-generator.html)
 
 5. [SpringBoot 整合 Mybatis](./java-springboot-mybatis.html)
+
+6. [MyBatis 插入数据时字段自动填充](./java-jdbc-mybatis-auto-fill.html)

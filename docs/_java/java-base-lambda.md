@@ -1,13 +1,13 @@
 ---
 layout: post
-title: Java 实战（第二版）
+title: Java 基础 Lambda
 categories: java
-tags: Java Book Util
-excerpt: Java 8 及之后的新特性
-date: 2023-03-17
+tags: Java Lambda
+date: 2023-04-11
 ---
-
-## 1. 一些术语
+Java 基础语法 Lambda，学习内容来自 《Java 实战（第二版）》
+<!--more-->
+## 1.一些术语
 * 谓词（ `predicate` ）在数学上常常用来代表类似于函数的东西，它接受一个参数值，并返回 `true` 或 `false`
 
 * 行为参数化就是一个方法接受多个不同的行为作为参数，并在内部使用它们，完成不同行为的能力。和多态类似
@@ -16,7 +16,7 @@ date: 2023-03-17
 
 
 
-## 2. Lambda 的引入
+## 2.Lambda 的引入
 引入 `Lambda` 的目标之一就是简化代码，让代码看起来更简洁。
 
 有这么一个需求，要求依据不同的条件，筛选出符合要求的苹果，我能写到的最简式是这样

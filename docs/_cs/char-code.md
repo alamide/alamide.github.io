@@ -258,7 +258,7 @@ public String stringToDiy(String str, String separator) {
 ```
 ## 6.小进阶
 
-* 把我们所需要传输的数据以特定的格式（有一定的加密效果）生成，再以特定的格式解析。
+* 把我们所需要传输的数据以特定的格式（有一定的加密效果）生成，再以特定的格式解析，可以使用 `DataOutputStream` 替代
 
 ```java
 public class DiyData {
