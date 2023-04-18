@@ -76,18 +76,6 @@ final LocalDate localDate2 = LocalDate.of(2024, 4, 10);
 final Period period = Period.between(localDate1, localDate2);
 ```
 
-### 2.3 Demon
-计算预产期及孕期信息
-```java
-final LocalDate startDate = LocalDate.of(2023, 1, 16);
-final LocalDate goalDate = startDate.plusDays(280);
-final LocalDate now = LocalDate.now();
-final long weeks = ChronoUnit.WEEKS.between(startDate, now);
-final long days = ChronoUnit.DAYS.between(startDate.plusWeeks(weeks), now);
-
-log.info("预产期为：{}, 当前为：孕 {} 周 + {} 天", goalDate, weeks, days);
-```
-
 ## 3.操作、解析和格式化日期
 ### 3.1 修改属性
 修改属性会创建一个新的对象，并不会修改原来的对象
@@ -152,4 +140,37 @@ final Instant instant = LocalDateTime.now().toInstant(ZoneOffset.UTC);
 final LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.now(), ZoneId.of("America/Anchorage"));
 final LocalDateTime localDateTime1 = LocalDateTime.ofInstant(Instant.now(), ZoneId.of("UTC+7"));
 final LocalDateTime localDateTime2 = LocalDateTime.ofInstant(Instant.now(), ZoneId.systemDefault());
+```
+
+## 4.Snippets
+计算预产期及孕期信息
+```java
+final LocalDate startDate = LocalDate.of(2023, 1, 16);
+final LocalDate goalDate = startDate.plusDays(280);
+final LocalDate now = LocalDate.now();
+final long weeks = ChronoUnit.WEEKS.between(startDate, now);
+final long days = ChronoUnit.DAYS.between(startDate.plusWeeks(weeks), now);
+
+log.info("预产期为：{}, 当前为：孕 {} 周 + {} 天", goalDate, weeks, days);
+```
+
+新年倒计时
+```java
+final LocalDateTime goalDate = LocalDate.now().plusYears(1).withDayOfYear(1).atStartOfDay();
+        
+Timer timer = new Timer();
+timer.scheduleAtFixedRate(new TimerTask() {
+    @Override
+    public void run() {
+        final long gapSeconds = ChronoUnit.SECONDS.between(LocalDateTime.now(), goalDate);
+        final long days = Duration.ofSeconds(gapSeconds).toDaysPart();
+        final long hours = Duration.ofSeconds(gapSeconds).toHoursPart();
+        final long minutes = Duration.ofSeconds(gapSeconds).toMinutesPart();
+        final long seconds = Duration.ofSeconds(gapSeconds).toSecondsPart();
+
+        log.info("距离新的一年还剩：{} 天 {} 时 {} 分 {} 秒", String.format("%03d", days), String.format("%02d", hours), String.format("%02d", minutes), String.format("%02d", seconds));
+    }
+}, 0, 1000);
+
+System.in.read();
 ```
