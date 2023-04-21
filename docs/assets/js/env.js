@@ -1,3 +1,0 @@
-function isOnline(){
-    return true;
-}
