@@ -16,7 +16,26 @@
       sp.innerText = '「 小破站已建 '+days+' 天啦 🎉 」';
     });
 
-    console.log(window.location)
+    var data = {
+      referrer: document.referrer,
+      userAgent: navigator.userAgent,
+      path: window.location.pathname
+    }
+    $.ajax({
+        type: 'POST',
+        url: 'http://127.0.0.1/data/put/visit',
+        data: JSON.stringify(data),
+        contentType: "application/json",
+        xhrFields: {withCredentials:true},
+        success: function(resp){
+        },
+        error: function(err){
+        }
+    })
+    // console.log(window.location.pathname)
+    // console.log(document.referrer)
+    // console.log(navigator.userAgent)
+
   </script>
 </head>
 

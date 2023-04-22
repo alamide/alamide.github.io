@@ -6,10 +6,10 @@
   link: /db/index.html
 - name: CS
   link: /cs/index.html
-- name: 类库
-  link: /third_lib/index.html
-- name: 随记
+- name: 其它
   link: /other/index.html
+- name: 随记
+  link: /random/index.html
 
 # - name: LeetCode
 #   link: /leetcode/index.html

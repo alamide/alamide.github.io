@@ -38,9 +38,9 @@ collections:
     output: true
   cs:
     output: true
-  third_lib:
-    output: true
   other:
+    output: true
+  random:
     output: true
 # Build settings
 # theme: minima
