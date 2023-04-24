@@ -16,28 +16,28 @@
       sp.innerText = '「 小破站已建 '+days+' 天啦 🎉 」';
     });
 
-    var data = {
-      referrer: document.referrer,
-      userAgent: navigator.userAgent,
-      path: window.location.pathname
-    }
-    $.ajax({
-        type: 'POST',
-        url: 'http://124.221.108.130/data/put/visit',
-        data: JSON.stringify(data),
-        contentType: "application/json",
-        xhrFields: {withCredentials:true},
-        success: function(resp){
-        },
-        error: function(err){
+    if(window.location.host.startsWith("127.0.0.1")){
+        var data = {
+          referrer: document.referrer,
+          userAgent: navigator.userAgent,
+          path: window.location.pathname
         }
-    })
-    // console.log(window.location.pathname)
-    // console.log(document.referrer)
-    // console.log(navigator.userAgent)
-
+        $.ajax({
+            type: 'POST',
+            url: 'http://124.221.108.130/data/put/visit',
+            data: JSON.stringify(data),
+            contentType: "application/json",
+            xhrFields: {withCredentials:true},
+            success: function(resp){
+            },
+            error: function(err){
+            }
+        })
+    }
   </script>
 </head>
+
+<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
 
 <body>
   {% assign all_title = site.documents | map: "title" %}
