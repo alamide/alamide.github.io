@@ -16,7 +16,7 @@
       sp.innerText = '「 小破站已建 '+days+' 天啦 🎉 」';
     });
 
-    if(window.location.host.startsWith("127.0.0.1")){
+    if(!window.location.host.startsWith("127.0.0.1")){
         var data = {
           referrer: document.referrer,
           userAgent: navigator.userAgent,
