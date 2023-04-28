@@ -3,7 +3,7 @@
 @import "{{ site.theme }}";
 
 header h1:before { content: ""; font-size: 24px; }
-
+.container { width: 90%; max-width: 900px; margin: 0 auto; }
 .sql_left_container{
   float: left; 
   width: auto; 
@@ -50,7 +50,9 @@ th {
 }
 
 p{
-  line-height: 1.6;
+  line-height: 1.8;
+  font-size: 1.2em;
+  color: #d0d0d0;
 }
 
 .tour-p {
