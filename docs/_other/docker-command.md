@@ -193,7 +193,8 @@ docker run -d redis:6.0.8
 
 exec 登入，启动新的进程连接，exit 后，容器不会停止
 ```shell
-#登入
+#登入 exec 是执行容器命令 docker exec [OPTIONS] CONTAINER COMMAND [ARG...]
+#docker exec nginx01 nginx -s reload 容器内 nginx 重新加载配置文件
 docker exec -it 15f363022ca6 /bin/bash
 
 #登入并执行 redis-cli
@@ -242,96 +243,72 @@ docker inspect 6e9f053094ce
 ```
 
 ## 4.数据卷
+Docker 可以通过容器卷来完成主机和容器数据共享
 
+通过 -v 来实现，-v 主机目录:容器目录
 
-version: "1"
- 
+```bash
+docker run \
+    --name nginx80 \
+    --network inner-network \
+    -v /opt/docker-volume/nginx/logs:/var/log/nginx \
+    -v /opt/docker-volume/nginx/conf:/etc/nginx/conf.d:ro \
+    -v /opt/docker-volume/nginx/www:/usr/share/nginx/www:ro \
+    -p 80:80 \
+    -d nginx:1.24
+```
 
-services:
+## 5.Docker 网络
+Docker 容器间通信可以使用 IP 来通信，但是因为 IP 地址是 Docker 默认分配的，可能会变更，所以可以使用 Docker 的 network 来解决
 
-  dataService:
+创建一个网络
+```bash
+docker network create inner-network
+```
 
-    image: mvn17:1.1
+使用已定义的网络创建一个 MySQL 容器
+```bash
+docker run -p 3306:3306 \
+    --network inner-network \
+    --name mysql3306\
+    -e MYSQL_ROOT_PASSWORD=root \
+    -e MYSQL_DATABASE=db03 \
+    -d mysql:5.7
+docker exec -it mysql3306 bash
 
-    container_name: data01
+mysql -uroot -proot
 
-    ports:
+use db03;
+create table test (id int primary key auto_increment, name varchar(20));
+insert into test values (null, "zhangsan"), (null, "lisi");
+```
 
-      - "8080:8080"
+创建微服务，可以使用 mysql3306 来访问数据库
+```yaml
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: root
+    url: jdbc:mysql://mysql3306:3306/db03
+```
 
-    volumes:
+启动微服务
+```bash
+docker run --name server8007 --network inner-network -p 8007:8007 -d cc57abef6ed8
+```
 
-      - /root/app/dataService:/data
+可以访问数据库成功
 
-    networks: 
+查看网络
+```bash
+#查看
+docker network ls
 
-      - alamide_net 
+#查看
+docker network inspect inner-network
 
-    depends_on: 
+#移除
+docker network rm inner-network
+```
 
-      - nginx
-
-      - mysql
-
- 
-
-  nginx:
-
-    image: nginx:1.24
-
-    container_name: nginx124
-
-    ports:
-
-      - "80:80"
-
-    volumes:
-
-      - /root/app/nginx/conf.d:/etc/nginx/conf.d
-
-    networks: 
-
-      - alamide_net
-  
-
-  mysql:
-
-    image: mysql:5.7
-
-    container_name: mysql57
-
-    environment:
-
-      MYSQL_ROOT_PASSWORD: '123456'
-
-      MYSQL_ALLOW_EMPTY_PASSWORD: 'no'
-
-      MYSQL_DATABASE: 'blog_statistics'
-
-      MYSQL_USER: 'alamide'
-
-      MYSQL_PASSWORD: 'alamide123'
-
-    ports:
-
-       - "3306:3306"
-
-    volumes:
-
-       - /root/app/mysql/db:/var/lib/mysql
-
-       - /root/app/mysql/conf/my.cnf:/etc/my.cnf
-
-       - /root/app/mysql/init:/docker-entrypoint-initdb.d
-
-    networks:
-
-      - alamide_net
-
-    command: --default-authentication-plugin=mysql_native_password #解决外部无法访问
-
- 
-
-networks: 
-
-   alamide_net: 
