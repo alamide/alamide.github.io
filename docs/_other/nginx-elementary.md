@@ -49,6 +49,23 @@ docker exec nginx80 echo 'Asia/Shanghai' >/etc/timezone
 #重新加载 nginx
 docker exec nginx80 nginx -s reload
 
+#宿主机中配置日志分割，可不配置，需要此项需要安装 logrotate
+echo "/opt/docker-volume/nginx/logs/*.log {
+        daily
+        missingok
+        rotate 52
+        compress
+        delaycompress
+        dateext
+        notifempty
+        dateyesterday
+        create 640 root root
+        sharedscripts
+        postrotate
+            docker exec nginx80 bash -c \"if [ -f /var/run/nginx.pid ]; then kill -USR1 `docker exec nginx80 cat /var/run/nginx.pid`; fi\"
+        endscript
+}" > /etc/logrotate.d/nginx
+
 #测试
 curl -I 127.0.0.1
 ```
