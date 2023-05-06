@@ -31,7 +31,7 @@ echo "server {
         #proxy_set_header    Host  \$host;
         #proxy_set_header    X-Real-IP  \$remote_addr;
         #proxy_set_header    X-Forwarded-For  \$proxy_add_x_forwarded_for;
-        #proxy_set_header X-Forwarded-Proto \$scheme;
+        #proxy_set_header    X-Forwarded-Proto \$scheme;
         root   /usr/share/nginx/html;
         index  index.html index.htm;
     }
@@ -44,12 +44,13 @@ echo "server {
 
 #修改时区
 docker exec nginx80 ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
-docker exec nginx80 echo 'Asia/Shanghai' >/etc/timezone
+docker exec nginx80 echo 'Asia/Shanghai' > /etc/timezone
 
-#重新加载 nginx
+#重新加载 nginx 配置文件
 docker exec nginx80 nginx -s reload
 
-#宿主机中配置日志分割，可不配置，需要此项需要安装 logrotate
+#宿主机中配置日志分割，可不配置，此项需要安装 logrotate
+#日志切割可能会两天分到一天中，可以自己修改 /etc/anacrontab，不修改问题也不大
 echo "/opt/docker-volume/nginx/logs/*.log {
         daily
         missingok
@@ -320,7 +321,7 @@ server {
 
     error_page   500 502 503 504  /50x.html;
     location = /50x.html {
-        root   /usr/share/nginx/html;/usr/share/nginx/www/static;/usr/share/nginx/www/static/img/1.jpeg
+        root   /usr/share/nginx/html;
     }
 }
 ```
@@ -363,15 +364,15 @@ server {
 ```
 
 location 匹配规则，“=”匹配 > “^~”匹配 > 正则匹配 > 普通
-1. / 通用匹配，任何请求都会匹配到
+1. `/ 通用匹配，任何请求都会匹配到`
 
-2. = 精准匹配 location = /50x.html
+2. `= 精准匹配 location = /50x.html`
 
-3. ～ 正则匹配，区分大小写 location = ~/(css|img|js)
+3. `～ 正则匹配，区分大小写 location = ~/(css|img|js)`
 
-4. ~* 正则匹配，不区分大小写  location = ~*/(css|img|js)
+4. `~* 正则匹配，不区分大小写  location = ~*/(css|img|js)`
 
-5. ^~ 非正则匹配，匹配以指定模式开头的location
+5. `^~ 非正则匹配，匹配以指定模式开头的location`
 
 ```
 location ~/(css|img|js) {

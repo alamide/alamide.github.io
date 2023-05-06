@@ -78,7 +78,11 @@ CMD /bin/bash
 
 ## 2.Compose
 来批量启动容器，可以快速部署集群
-```
+
+文件名 `docker-compose.yml` 
+
+编排 `docker compose up -d`
+```yaml
 version: "1"
 
 services:
