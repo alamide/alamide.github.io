@@ -4,6 +4,7 @@ title: Java 基础 Stream
 categories: java
 tags: Java Stream
 date: 2023-03-27
+isHidden: true
 ---
 Java 基础语法 Stream，学习内容来自 《Java 实战（第二版）》
 <!--more-->
@@ -490,4 +491,346 @@ PrimeNumberCollector average cost time: 294ms
 Normal average cost time: 469ms
 ```
 
-### 2.7 求质数与自定义收集器
+## 3.并行数据处理与性能
+### 3.1 流性能测试
+```java
+@State(Scope.Thread)
+@BenchmarkMode(Mode.AverageTime)
+@OutputTimeUnit(TimeUnit.MILLISECONDS)
+@Fork(value = 2, jvmArgs = {"-Xms4G", "-Xmx4G"})
+public class ParallelStreamBenchMark {
+    private static final long N = 10_000_000L;
+
+    @Benchmark
+    public long sequentialSum() {
+        return Stream.iterate(1L, i -> i + 1).limit(N).reduce(0L, Long::sum);
+    }
+
+    @Benchmark
+    public long rangedSum(){
+        return LongStream.rangeClosed(1, N).reduce(0L, Long::sum);
+    }
+
+    @Benchmark
+    public long parallelRangedSum(){
+        return LongStream.rangeClosed(1, N).parallel().reduce(0L, Long::sum);
+    }
+    @Benchmark
+    public long iterativeSum() {
+        long result = 0;
+        for (long i = 0; i < N; i++) {
+            result += i;
+        }
+        return result;
+    }
+
+    @TearDown(Level.Invocation)
+    public void tearDown() {
+        System.gc();
+    }
+
+    public static void main(String[] args) throws RunnerException {
+        Options opt = new OptionsBuilder()
+                .include(ParallelStreamBenchMark.class.getSimpleName())
+                .warmupIterations(5)
+                .measurementIterations(10)
+                .build();
+
+        new Runner(opt).run();
+    }
+}
+```
+
+output:
+```
+Benchmark                                  Mode  Cnt   Score   Error  Units
+ParallelStreamBenchMark.iterativeSum       avgt   20   3.598 ± 0.278  ms/op
+ParallelStreamBenchMark.parallelRangedSum  avgt   20   0.689 ± 0.066  ms/op
+ParallelStreamBenchMark.rangedSum          avgt   20   4.004 ± 0.093  ms/op
+ParallelStreamBenchMark.sequentialSum      avgt   20  88.117 ± 0.679  ms/op
+```
+
+并行处理数据效率要高的多
+
+sequentialSum 效率低的原因是 iterate 过程中有装箱拆箱的操作，及 iterate 很难分成多个块来操作
+
+LongStream.rangeClosed 直接产生原始类型的 long ，没有拆箱装箱的开销，及很容易拆分
+
+### 3.2 错误的并行
+```java
+@Test
+public void testErrorParallel() {
+    final long sum = sideEffectSum(10_000_000L);
+    System.out.println(sum);
+}
+
+public long sideEffectSum(long n){
+    Accumulator accumulator = new Accumulator();
+    LongStream.rangeClosed(1, n).parallel().forEach(accumulator::add);
+    return accumulator.total;
+}
+
+public static class Accumulator {
+    public long total = 0L;
+
+    public void add(long value) {
+        total += value;
+    }
+}
+```
+
+正确的结果应该是 `50000005000000` ，但是这个例子得不到正确的结果，因为 total += value 不是原子操作，多线程时会得到不正确的结果
+
+如果修改成
+```java
+public static class Accumulator {
+    public AtomicLong total = new AtomicLong(0);
+
+    public void add(long value) {
+        total.addAndGet(value);
+    }
+}
+```
+
+则会得到正确的结果，但是并行则毫无意义
+
+### 3.3 适合并行的流数据源
+1. ArrayList 极佳
+
+2. IntStream.range 极佳
+
+3. HashSet 好
+
+4. TreeSet 好
+
+5. iterate 差
+
+6. LinkedList 差
+
+## 4.分支合并
+类似于分治算法，将大任务分解成多个小任务，最后合并多个小任务的结果，得到最终的结果。
+```java
+public class ForkJoinSumCalculator extends RecursiveTask<Long> {
+    private final long[] numbers;
+    private final int start;
+    private final int end;
+
+    public static final long THRESHOLD = 10_000;
+
+    public ForkJoinSumCalculator(long[] numbers) {
+        this(numbers, 0, numbers.length);
+    }
+
+    public ForkJoinSumCalculator(long[] numbers, int start, int end) {
+        this.numbers = numbers;
+        this.start = start;
+        this.end = end;
+    }
+
+    @Override
+    protected Long compute() {
+        int length = end - start;
+        if (length < THRESHOLD) {
+            return computeSequentially();
+        }
+
+        ForkJoinSumCalculator leftFork = new ForkJoinSumCalculator(numbers, start, start + length / 2);
+        leftFork.fork();
+
+        ForkJoinSumCalculator rightFork = new ForkJoinSumCalculator(numbers, start + length / 2, end);
+        final Long rightResult = rightFork.compute();
+        final Long leftResult = leftFork.join();
+        return rightResult + leftResult;
+    }
+
+    private long computeSequentially() {
+        long sum = 0;
+        for (int i = start; i < end; i++) {
+            sum += numbers[i];
+        }
+        return sum;
+    }
+
+    public static long forkJoinSum(long n) {
+        long[] numbers = LongStream.rangeClosed(1, n).toArray();
+        ForkJoinTask<Long> task = new ForkJoinSumCalculator(numbers);
+        return new ForkJoinPool().invoke(task);
+    }
+}
+```
+
+测试
+```java
+private static final long N = 10_000_000L;
+
+@Benchmark
+public long forkJoin(){
+    return ForkJoinSumCalculator.forkJoinSum(N);
+}
+```
+
+output:
+```
+Benchmark                                  Mode  Cnt   Score   Error  Units
+ParallelStreamBenchMark.forkJoin           avgt   20  26.246 ± 4.635  ms/op
+ParallelStreamBenchMark.iterativeSum       avgt   20   3.709 ± 0.186  ms/op
+ParallelStreamBenchMark.parallelRangedSum  avgt   20   0.730 ± 0.039  ms/op
+ParallelStreamBenchMark.rangedSum          avgt   20   4.250 ± 0.217  ms/op
+ParallelStreamBenchMark.sequentialSum      avgt   20  93.359 ± 5.364  ms/op
+```
+
+性能还是比较差，书上说是因为必须先要把整个数字流都放进一个long[]，之后才能在ForkJoinSumCalculator任务中使用它
+
+>分支/合并框架工程用一种称为工作窃取（work stealing）的技术来解决这个问题。在实际应用中，这意味着这些任务差不多被平均分配到ForkJoinPool中的所有线程上。每个线程都为分配给它的任务保存一个双向链式队列，每完成一个任务，就会从队列头上取出下一个任务开始执行。基于前面所述的原因，某个线程可能早早完成了分配给它的所有任务，也就是它的队列已经空了，而其他的线程还很忙。这时，这个线程并没有闲下来，而是随机选了一个别的线程，从队列的尾巴上“偷走”一个任务。这个过程一直继续下去，直到所有的任务都执行完毕，所有的队列都清空。这就是为什么要划成许多小任务而不是少数几个大任务，这有助于更好地在工作线程之间平衡负载。
+
+## 5.Spliterator
+统计文件中单词数，统计文本中字符数为 `21444526` ，非空格字符数为 `3364711`
+```java
+public class WordCounter {
+    private final int counter;
+
+    private final boolean lastSpace;
+
+    public WordCounter(int counter, boolean lastSpace) {
+        this.counter = counter;
+        this.lastSpace = lastSpace;
+    }
+
+    public WordCounter accumulate(Character character) {
+        if (Character.isWhitespace(character)) {
+            return lastSpace ? this : new WordCounter(counter, true);
+        } else {
+            return lastSpace ? new WordCounter(counter + 1, false) : this;
+        }
+    }
+
+    public WordCounter combine(WordCounter wordCounter){
+        return new WordCounter(counter + wordCounter.counter, wordCounter.lastSpace);
+    }
+
+    public int getCounter() {
+        return counter;
+    }
+}
+
+public class WordCounterSpliterator implements Spliterator<Character> {
+    private final String string;
+
+    private int currentChar = 0;
+
+    public WordCounterSpliterator(String string) {
+        this.string = string;
+    }
+
+    @Override
+    public boolean tryAdvance(Consumer<? super Character> action) {
+        action.accept(string.charAt(currentChar++));
+        return currentChar < string.length();
+    }
+
+    @Override
+    public Spliterator<Character> trySplit() {
+        int currentSize = string.length() - currentChar;
+        if (currentSize < 10) {
+            return null;
+        }
+
+        for (int splitPos = currentSize / 2 + currentChar; splitPos < string.length(); splitPos++) {
+            if (Character.isWhitespace(string.charAt(splitPos))) {
+                Spliterator<Character> spliterator = new WordCounterSpliterator(string.substring(currentChar, splitPos));
+                currentChar = splitPos;
+                return spliterator;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public long estimateSize() {
+        return string.length() - currentChar;
+    }
+
+    @Override
+    public int characteristics() {
+        return ORDERED + SIZED + SUBSIZED + NONNULL + IMMUTABLE;
+    }
+}
+
+@State(Scope.Thread)
+@BenchmarkMode(Mode.AverageTime)
+@OutputTimeUnit(TimeUnit.MILLISECONDS)
+@Fork(value = 2, jvmArgs = {"-Xms4G", "-Xmx4G"})
+public class WordCountBenchMark {
+
+    private String data;
+
+    @Benchmark
+    public int commonCount() throws IOException {
+        int counter = 0;
+        boolean lastSpace = false;
+        for (char c : data.toCharArray()) {
+            if (Character.isWhitespace(c)) {
+                lastSpace = true;
+            } else {
+                if (lastSpace) counter++;
+                lastSpace = false;
+            }
+        }
+        return counter;
+    }
+
+    @Benchmark
+    public int spliterator(){
+        Spliterator<Character> spliterator = new WordCounterSpliterator(data);
+        Stream<Character> stream = StreamSupport.stream(spliterator, true);
+        final WordCounter reduce = stream.reduce(new WordCounter(0, false), WordCounter::accumulate, WordCounter::combine);
+        return reduce.getCounter();
+    }
+    @Benchmark
+    public int countWords(){
+        final Stream<Character> characterStream = IntStream.range(0, data.length()).mapToObj(data::charAt);
+        final WordCounter reduce = characterStream.reduce(new WordCounter(0, false), WordCounter::accumulate, WordCounter::combine);
+        return reduce.getCounter();
+    }
+
+    @Setup
+    public void readString() throws IOException {
+        final InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("sources.txt");
+        InputStreamReader reader = new InputStreamReader(inputStream);
+
+        char[] chars = new char[1024];
+        int count = 0;
+        StringBuilder stringBuilder = new StringBuilder();
+        while ((count = reader.read(chars)) != -1) {
+            stringBuilder.append(Arrays.copyOfRange(chars, 0, count));
+        }
+        inputStream.close();
+        reader.close();
+        data = stringBuilder.toString();
+    }
+
+    @TearDown(Level.Invocation)
+    public void tearDown() {
+        System.gc();
+    }
+
+    public static void main(String[] args) throws RunnerException {
+        Options opt = new OptionsBuilder()
+                .include(WordCountBenchMark.class.getSimpleName())
+                .warmupIterations(5)
+                .measurementIterations(10)
+                .build();
+
+        new Runner(opt).run();
+    }
+}
+
+```
+
+output:
+```
+Benchmark                       Mode  Cnt    Score    Error  Units
+WordCountBenchMark.commonCount  avgt   20   78.628 ±  0.752  ms/op
+WordCountBenchMark.countWords   avgt   20  193.506 ± 10.918  ms/op
+WordCountBenchMark.spliterator  avgt   20   64.131 ±  3.657  ms/op
+```

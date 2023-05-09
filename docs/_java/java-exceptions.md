@@ -3,6 +3,7 @@ layout: post
 title: 一些遇到的异常
 categories: java
 tags: Java Exceptions
+isHidden: true
 ---
 
 ## 1.org.apache.ibatis.binding.BindingException: Invalid bound statement (not found)

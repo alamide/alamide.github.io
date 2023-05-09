@@ -4,6 +4,7 @@ title: Java 基础 Thread
 categories: java
 tags: Java Thread
 date: 2023-04-11
+isHidden: true
 ---
 Java 基础语法 Thread，学习内容来自 《Java 编程的逻辑》
 <!--more-->
@@ -435,3 +436,27 @@ public void testConsume() throws IOException, InterruptedException {
     }
 }
 ```
+
+## 8.异步结果
+```java
+Callable<String> callable = () -> {
+    Thread.sleep(10000);
+    return "complete!";
+};
+
+final ExecutorService executorService = Executors.newFixedThreadPool(1);
+final Future<String> submit = executorService.submit(callable);
+System.out.println(submit.get());
+```
+
+## 9.线程中断
+一般我们的线程使用 Executor 管理，调用 shutdown/shutdownNow。调用线程中断方法后，不一定立即结束线程。
+
+线程的状态有：
+1. RUNNABLE：线程在运行或具备运行条件只是在等待操作系统调度。
+
+2. WAITING/TIMED_WAITING：线程在等待某个条件或超时。
+
+3. BLOCKED：线程在等待锁，试图进入同步块。
+
+4. NEW/TERMINATED：线程还未启动或已结束。

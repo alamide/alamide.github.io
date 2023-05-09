@@ -5,11 +5,9 @@ categories: java
 tags: Java Request DispatchServlet
 date: 2023-03-25
 ---
-
-
-
 `SpringBoot` 中一般我们的请求都是通过 `DispatchServlet` 处理转发的，我这里追踪的起点是 `doService` 方法。`doService` 中会传入已经封装过的参数
 `HttpServletRequest request` 
+<!--more-->
 
 ![doService](/assets/imgs/java-springboot-request-param-doservice.png)
 

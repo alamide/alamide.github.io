@@ -7,7 +7,7 @@ tags: java jdk
 date: 2023-03-08
 ---
 
-### 1.获取一个字符的 Unicode 编码
+## 1.获取一个字符的 Unicode 编码
 `public static int codePointAt(CharSequence seq, int index)`
 ```java
 @Test
@@ -19,7 +19,7 @@ public void testCharacter(){
     System.out.println(new String(chars));//😄
 }
 ```
-### 2.由 Unicode 编码，查看 占用 `char` 数
+## 2.由 Unicode 编码，查看 占用 `char` 数
 ```java
 final int charCount = Character.charCount(128516);
 System.out.println(charCount);//2
@@ -31,4 +31,15 @@ public static final int MIN_SUPPLEMENTARY_CODE_POINT = 0x010000;
 public static int charCount(int codePoint) {
   return codePoint >= MIN_SUPPLEMENTARY_CODE_POINT ? 2 : 1;
 }
+```
+
+## 3.判断是否为空
+空白字符包括 '\n' 、' ' '\t' 等
+```java
+Character.isWhitespace(c);
+```
+
+## 4.是否为字母
+```java
+Character.isAlphabetic(a);
 ```
