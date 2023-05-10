@@ -1,14 +1,14 @@
 ---
 layout: post
-title: Java Web 
+title: Java Web 基础笔记
 categories: java
 tags: Java JavaWeb
+excerpt: JavaWeb 基础笔记
 date: 2023-05-09
 ---
 * JavaWeb 三大组件 Servlet、Filter、Listener
 
 * JavaWeb 四大作用域 pageContext(仅限 JSP 页面)、request(HttpServletRequest)、session(HttpSession)、application(ServletContext)
-<!--more-->
 
 ## 1.依赖引入
 后续开发都是使用 SpringBoot 直接打成 jar 包，这里就不深究 Tomcat 的配置了
