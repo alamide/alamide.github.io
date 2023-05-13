@@ -76,6 +76,25 @@ EXPOSE 8080
 CMD /bin/bash
 ```
 
+简洁版 SpringBoot 镜像
+```
+FROM openjdk:17
+
+COPY ./target/DataStatistics-1.0-SNAPSHOT.jar /root/app/DataStatistics-1.0-SNAPSHOT.jar
+
+WORKDIR /root/app
+
+#从命令行指定配置文件的前提是  SpringApplication.run(MainApplication.class, args); 要传入 args，否则无效，我踩的一个小坑
+ENTRYPOINT ["java", "-jar", "DataStatistics-1.0-SNAPSHOT.jar" ,"--spring.profiles.active=prod"]
+
+EXPOSE 8080
+```
+
+构建
+```bash
+docker build -t [镜像名称]:[版本] .   
+```
+
 ## 2.Compose
 来批量启动容器，可以快速部署集群
 
@@ -91,6 +110,7 @@ services:
     container_name: nginx80
     ports:
       - "80:80"
+      - “443:443”
     volumes:
       - /opt/docker-volume/nginx/logs:/var/log/nginx
       - /opt/docker-volume/nginx/conf:/etc/nginx/conf.d:ro

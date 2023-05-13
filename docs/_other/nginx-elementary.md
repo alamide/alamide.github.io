@@ -445,3 +445,40 @@ location /img {
 
 ## 7. Https 证书配置
 最初的信息传输是明文传输，信息在网络上传输要经过很多个路由器交换机，明文传输是非常不安全的，向服务器提交的数据很大可能被恶意读取并篡改。
+
+先去正规厂商申请 CA 证书，比如阿里、腾讯，再如下配置就可以了
+```
+server {
+    listen       443 ssl;
+    server_name  xxx.com;
+
+    # 下面两个文件为申请的公钥和私钥
+    ssl_certificate /etc/nginx/conf.d/ssl.pem;
+    ssl_certificate_key /etc/nginx/conf.d/ssl.key;
+
+    # ssl验证相关配置
+    ssl_session_timeout  5m;    #缓存有效期
+    ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE:ECDH:AES:HIGH:!NULL:!aNULL:!MD5:!ADH:!RC4;    #加密算法
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;    #安全链接可选的加密协议
+    ssl_prefer_server_ciphers on;   #使用服务器端的首选算法
+    
+    location / {    
+        proxy_set_header    Host  $host;
+        proxy_set_header    X-Real-IP  $remote_addr;
+        proxy_set_header    X-Forwarded-For  $proxy_add_x_forwarded_for;
+        proxy_set_header    X-Forwarded-Proto $scheme;
+        proxy_pass          http://server8080:8080;
+    }
+
+    error_page   500 502 503 504  /50x.html;
+    location = /50x.html {
+        root   /usr/share/nginx/html;
+    }
+}
+
+server {
+     listen 80;
+     server_name data.alamide.com;
+     rewrite ^(.*) https://$server_name$1 permanent;
+}
+```
