@@ -94,6 +94,17 @@ p{
   }
 }
 
+.movie-div {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+
+  p {
+    width: 100%;
+    text-align: center;
+  }
+}
 
 // .highlight .err { color: #d0d0d0; background-color: #00000000; }
 
