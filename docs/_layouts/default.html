@@ -19,27 +19,27 @@
         sessionStorage.setItem("SessionId", generateUUID())
       }
 
-      if(!window.location.host.startsWith("127.0.0.1")){
-        var data = {
-          referrer: document.referrer,
-          userAgent: navigator.userAgent,
-          path: window.location.pathname
-        }
-        $.ajax({
-            type: 'POST',
-            url: 'https://data.alamide.com/data/put/visit',
-            data: JSON.stringify(data),
-            contentType: "application/json",
-            xhrFields: {withCredentials:true},
-            beforeSend: function(request) {
-                request.setRequestHeader("SessionId", sessionStorage.getItem("SessionId"));
-            },
-            success: function(resp){
-            },
-            error: function(err){
-            }
-        })
-    }
+      var data = {
+        referrer: document.referrer,
+        userAgent: navigator.userAgent,
+        path: window.location.pathname
+      }
+      var prefix = window.location.host.startsWith("127.0.0.1") ? 'http://localhost:8080':'https://data.alamide.com'
+      var requestUrl = `${prefix}/data/put/visit`
+      $.ajax({
+          type: 'POST',
+          url: requestUrl,
+          data: JSON.stringify(data),
+          contentType: "application/json",
+          xhrFields: {withCredentials:true},
+          beforeSend: function(request) {
+              request.setRequestHeader("SessionId", sessionStorage.getItem("SessionId"));
+          },
+          success: function(resp){
+          },
+          error: function(err){
+          }
+      })
     });
 
     function generateUUID() {

@@ -5,6 +5,8 @@ categories: java
 tags: Java SpringMVC
 date: 2023-05-10
 ---
+SpringMVC Request 相关
+<!--more-->
 ## 1.@Controller
 `SpringMVC` 使用 `@Controller` 和 `@RestController` 来表示一个请求映射、请求输入、异常处理。要使 `@Controller` 生效，需要将被注解的类加入到 Spring 容器中。
 ```java
@@ -607,14 +609,349 @@ public void pet(Model model) {
 }
 ```
 
-docker run \
-    --name nginx80 \
-    --network inner-network \
-    -v /opt/docker-volume/nginx/logs:/var/log/nginx \
-    -v /opt/docker-volume/nginx/conf:/etc/nginx/conf.d:ro \
-    -v /opt/docker-volume/nginx/www:/usr/share/nginx/www:ro \
-    -p 80:80 \
-    -p 443:443 \
-    -d nginx:1.24
+#### 3.2.5 @SessionAttributes
+用来存储 Session，会将 ModelAttributs 中同名的或同类型的的数据存放到 session 中。测试发现返回方法加上 @ResponseBody 时，不能生效。可以使用 HttpSession
+>For use cases that require adding or removing session attributes, consider injecting org.springframework.web.context.request.WebRequest or jakarta.servlet.http.HttpSession into the controller method.
+>For temporary storage of model attributes in the session as part of a controller workflow, consider using @SessionAttributes as described in @SessionAttributes.
 
+```java
+@Controller
+@RequestMapping("/session")
+@SessionAttributes("pet")
+public class SessionAttributeController {
+
+    //http://localhost:8080/session/pets/10001
+    @ModelAttribute("pet")
+    public Pet pet(){
+        return new Pet(1L, 2L, "jerry");
+    }
+
+    //http://localhost:8080/session/pets
+    @GetMapping ("/pets/{petId}")
+    public String handle1(Pet pet) {
+        return "hello";
+    }
+
+    @ResponseBody
+    @GetMapping ("/pets")
+    public String handle2(@SessionAttribute Pet pet) {
+        //Pet(ownerId=1, petId=10001, name=jerry)
+        return pet.toString();
+    }
+
+    @ResponseBody
+    @GetMapping ("/pets/clear")
+    public void handle3(SessionStatus sessionStatus) {
+        sessionStatus.setComplete();
+    }
+}
+```
+
+第一次请求 `http://localhost:8080/session/pets/10001` 将 pet 存放到 Session 中，第二次访问 `http://localhost:8080/session/pets` 
+会获取到 Session 中的存储的 pet。第三次访问 `http://localhost:8080/session/pets/clear` 清除 Session
+
+#### 3.2.6 @RequestAttribute
+>Similar to @SessionAttribute, you can use the @RequestAttribute annotations to access pre-existing request attributes created earlier (for example, by a Servlet Filter or HandlerInterceptor)
+
+从 Request 请求域中获取参数
+```java
+@Controller
+@RequestMapping("/request")
+public class RequestAttributeController {
+    
+    @GetMapping ("/get")
+    public String handle(HttpServletRequest request) {
+        request.setAttribute("pet", new Pet(10L, 100L, "black"));
+        return "forward:/request/get2";
+    }
+
+    //@RequestAttribute 没有指定 name，依据类型推断出 name=pet
+    @ResponseBody
+    @GetMapping ("/get2")
+    public String handle2(@RequestAttribute Pet pet) {
+        return pet.toString();
+    }
+    
+}
+```
+
+#### 3.2.7 Redirect Attributes
+页面重定向时参数的传递，addAttribute 的参数可以拼接到 PathVariable 或 Param 中。FlashAttribute 会存放在 Session 中，取完一次后被丢弃。addFlashAttribute 中的参数通过 @ModelAttribute 获取或 ModelMap modelMap
+```java
+@Slf4j
+@Controller
+@RequestMapping("/redirect")
+public class RedirectAttributeController {
+
+    @GetMapping("/get/{path}")
+    public String get1(RedirectAttributes attributes){
+        attributes
+                .addAttribute("page", 1)
+                .addAttribute("param1", "186")
+                .addFlashAttribute("name", "alamide");
+        //转发后地址 http://localhost:8080/redirect/get2/kkkk/1?param1=186
+        return "redirect:/redirect/get2/{path}/{page}";
+    }
+
+
+    @ResponseBody
+    @GetMapping("/get2/{path}/{page}")
+    public String get2(ModelMap modelMap, @PathVariable String path, @PathVariable String page){
+        //{name=alamide};kkkk;1
+        return modelMap.toString() + ";" + path + ";" + page;
+    }
+}
+```
+
+#### 3.2.8 Flash Attributes
+主要用在重定向请求，例如 Post-Redirect-Get 模式，重定向之前植被保存，重定向之后立即移除。
+
+#### 3.2.9 Multipart
+主要用来传输文件，SpringMVC 使用 Multipart Resolver 来处理 Multipart 请求，具体的实现类为 StandardServletMultipartResolver，注意   CommonsMultipartResolver 从 Spring Framework 6.0 开始已经废弃。
+
+首先配置 MultipartConfig
+```java
+public class MyWebAppInitializer extends AbstractAnnotationConfigDispatcherServletInitializer {
+
+    @Override
+    protected Class<?>[] getRootConfigClasses() {
+        return new Class<?>[] { WebConfig.class };
+    }
+
+    @Override
+    protected Class<?>[] getServletConfigClasses() {
+        return null;
+    }
+
+    @Override
+    protected String[] getServletMappings() {
+        return new String[] { "/" };
+    }
+    //配置
+    @Override
+    protected void customizeRegistration(ServletRegistration.Dynamic registration) {
+        registration.setMultipartConfig(new MultipartConfigElement("/tmp"));
+    }
+}
+```
+
+再向容器注入，测试的过程中发现不注入其实也是可以的，具体原因没有探究，但是官方让配置，那就配置吧
+```java
+@Bean("multipartResolver")
+public StandardServletMultipartResolver getStandardServletMultipartResolver(){
+    return new StandardServletMultipartResolver();
+}
+```
+
+测试
+```html
+<body>
+    <form action="http://localhost:8080/multipart/form" method="post" enctype="multipart/form-data">
+        username: <input name="username" value=""/><br/>
+        <input type="file" name="avatar"/><br/>
+        <input type="submit" value="Submit"/><br/>
+    </form>
+</body>
+```
+
+```java
+@ResponseBody
+@PostMapping("/form")
+public String form(@RequestParam("username")String username, @RequestParam("avatar") MultipartFile file){
+
+    log.info(username);
+    final String originalFilename = file.getOriginalFilename();
+    String suffix = originalFilename.substring(originalFilename.lastIndexOf("."));
+
+    File dir = new File(dirPath);
+    if (!dir.exists()) {
+        dir.mkdirs();
+    }
+
+    String fileName = UUID.randomUUID() + suffix;
+
+    try {
+        file.transferTo(new File(dirPath + fileName));
+    } catch (IOException e) {
+        throw new RuntimeException(e);
+    }
+    return "success;";
+}
+```
+
+传输多个文件，多个文件对应多个参数时，可以 @RequestParam Map<String, MultipartFile> or MultiValueMap<String, MultipartFile>
+```html
+<body>
+    <form action="http://localhost:8080/multipart/form" method="post" enctype="multipart/form-data">
+        username: <input name="username" value=""/><br/>
+        <input type="file" name="avatars" multiple="multiple"/><br/>
+        <input type="submit" value="Submit"/><br/>
+    </form>
+</body>
+```
+
+```java
+@ResponseBody
+@PostMapping("/form")
+public String form(@RequestParam("username")String username, @RequestParam("avatars") List<MultipartFile> files){
+    ...
+}
+```
+
+还可以使用 jakarta.servlet.http.Part 来替换 MultipartFile
+```java
+@ResponseBody
+@PostMapping("/form")
+public String form(@RequestParam("username") String username, @RequestParam("avatar") Part file) {
+    log.info(file.getName() + ":" + username);
+    try {
+
+        file.getInputStream().transferTo(new FileOutputStream(dirPath + file.getSubmittedFileName()));
+    } catch (IOException e) {
+        throw new RuntimeException(e);
+    }
+
+    return "success;";
+}
+```
+
+可以使用 Object 来接收，需要注入 StandardServletMultipartResolver
+```java
+@Data
+public static class Form {
+    private String username;
+
+    private MultipartFile avatar;
+}
+
+@ResponseBody
+@PostMapping("/form")
+public String form(Form form) {
+    ...
+}
+```
+
+#### 3.2.10 @RequestBody
+通过 HttpMessageConverter 将 RequestBody 的内容反序列化到 Object 中，如可以将 Post 请求的 Body 反序列化为 Object
+
+Post 请求的请求体内容为，Content-Type: application/json， Request 依据 Content-Type 查询合适的转换器
+```json
+{
+    "ownerId": 12345,
+    "petId": 23456,
+    "name": "tom"
+}
+```
+
+```java
+@Controller
+@RequestMapping("/request")
+public class RequestBodyController {
+
+    @ResponseBody
+    @PostMapping
+    public String request(@RequestBody Pet pet){
+        return pet.toString();
+    }
+}
+```
+
+要转换成功需要注册对应的 HttpMessageConverter
+```java
+@Configuration
+@ComponentScan(basePackages = {"com.alamide.web"})
+@EnableWebMvc
+public class WebConfig implements WebMvcConfigurer {
+
+    @Override
+    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+        Jackson2ObjectMapperBuilder builder = new Jackson2ObjectMapperBuilder()
+                .indentOutput(true)
+                .dateFormat(new SimpleDateFormat("yyyy-MM-dd"))
+                .modulesToInstall(new ParameterNamesModule());
+        converters.add(new MappingJackson2HttpMessageConverter(builder.build()));
+    }
+
+}
+```
+
+#### 3.2.11 HttpEntity
+HttpEntity 与 @RequestBody 类似，它可以同时把请求头封装起来
+```java
+@ResponseBody
+@PostMapping
+public String request(HttpEntity<Pet> entity){
+    final Pet pet = entity.getBody();
+    final HttpHeaders headers = entity.getHeaders();
+    log.info("pet = {}", pet);
+    log.info("header = {}", headers);
+    return "success";
+}
+```
+
+output:
+```
+22:59:33.771 [http-nio-8080-exec-19] INFO com.alamide.web.RequestBodyController -- pet = Pet(ownerId=12345, petId=23456, name=tom)
+22:59:33.774 [http-nio-8080-exec-19] INFO com.alamide.web.RequestBodyController -- header = [user-agent:"PostmanRuntime/7.28.4", accept:"*/*", postman-token:"95551ad0-b283-4d5c-ba4d-895f8307e342"]
+```
+
+## 4.小章总结
+### 4.1 路径匹配
+网络请求的本质是依据 URI 访问具体的文件，整个流程可以简化为 Request、Response。具体访问哪个资源文件，由 URI 决定。SpringMVC 提供了多种 URI 匹配方式，依据 URL、URL+Parameter、URL+Content-Type、URL+Accept、URL+Header、URL+Method 等
+
+### 4.2 请求信息的获取
+一个请求可携带的信息会有 Parameter、Header，SpringMVC 提供了获取各种信息的方法。
+1. 获取 Parameter 可以通过 @RequestParam，获取 URI Variable 可以通过 @PathVariable，获取矩阵变量可以使用 @MatrixVariable，获取 RequestBody 可以使用 @RequestBody，获取 RequestBody 中的文件可以  MultipartFile。
+
+2. 获取 Header 可以通过 @RequestHeader，获取 Cookie 可以通过 @CookieValue
+
+3. 域数据获取可以通过 @RequestAttribute、@SessionAttribute
+
+### 4.3 请求参数的获取
+>By default, any argument that is a simple value type (as determined by BeanUtils#isSimpleProperty) and is not resolved by any other argument resolver, is treated as if it were annotated with @RequestParam.
+
+>By default, any argument that is not a simple value type (as determined by BeanUtils#isSimpleProperty) and is not resolved by any other argument resolver is treated as if it were annotated with @ModelAttribute.
+
+简单参数获取时，不指定 @RequestParam ，默认等同于加上，name = 参数名
+
+非简单参数获取时，不指定 @ModelAttribute，默认等同于加上，name 依据参数类型推断
+
+所以以下的请求是可行的
+```java
+//http://localhost:8080/parameter/simple?username=alamide&age=18
+@ResponseBody
+@GetMapping("/simple")
+public String simpleValue(String username, Integer age){
+    //alamide;18
+    return username + ";" + age;
+}
+// 等同于
+// @ResponseBody
+// @GetMapping("/simple")
+// public String simpleValue(@RequestParam("username") String username, @RequestParam("age") Integer age){
+//     return username + ";" + age;
+// }
+
+@Data
+@ToString
+public static class UserInfo{
+    private String username;
+    private Integer age;
+}
+
+//http://localhost:8080/parameter/non-simple?username=alamide&age=18
+@ResponseBody
+@GetMapping("/non-simple")
+public String notSimpleValue(UserInfo userInfo){
+    //"ParameterController.UserInfo(username=alamide, age=18)"
+    return userInfo.toString();
+}
+
+// 等同于
+// @ResponseBody
+// @GetMapping("/non-simple")
+// public String notSimpleValue(@ModelAttribute UserInfo userInfo){
+//     return userInfo.toString();
+// }
+```
 
