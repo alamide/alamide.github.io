@@ -8,7 +8,7 @@ date: 2023-05-12
 Centos7 一些常用的常用命令
 <!--more-->
 
-1. 设置 ssh 连接时长
+### 1.设置 ssh 连接时长
 ```bash
 vim /etc/ssh/sshd_config
 ```

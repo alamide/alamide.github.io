@@ -856,22 +856,32 @@ public class RequestBodyController {
 }
 ```
 
-要转换成功需要注册对应的 HttpMessageConverter
+要转换成功需要注册对应的 HttpMessageConverter。第二次修改，引入 Jackson 依赖时，不需要手动注册，具体注册的代码在 WebMvcConfigurationSupport
 ```java
-@Configuration
-@ComponentScan(basePackages = {"com.alamide.web"})
-@EnableWebMvc
-public class WebConfig implements WebMvcConfigurer {
+// @Configuration
+// @ComponentScan(basePackages = {"com.alamide.web"})
+// @EnableWebMvc
+// public class WebConfig implements WebMvcConfigurer {
 
-    @Override
-    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-        Jackson2ObjectMapperBuilder builder = new Jackson2ObjectMapperBuilder()
-                .indentOutput(true)
-                .dateFormat(new SimpleDateFormat("yyyy-MM-dd"))
-                .modulesToInstall(new ParameterNamesModule());
-        converters.add(new MappingJackson2HttpMessageConverter(builder.build()));
+//     @Override
+//     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+//         Jackson2ObjectMapperBuilder builder = new Jackson2ObjectMapperBuilder()
+//                 .indentOutput(true)
+//                 .dateFormat(new SimpleDateFormat("yyyy-MM-dd"))
+//                 .modulesToInstall(new ParameterNamesModule());
+//         converters.add(new MappingJackson2HttpMessageConverter(builder.build()));
+//     }
+
+// }
+jackson2Present = ClassUtils.isPresent("com.fasterxml.jackson.databind.ObjectMapper", classLoader) && ClassUtils.isPresent("com.fasterxml.jackson.core.JsonGenerator", classLoader);
+
+if (jackson2Present) {
+    builder = Jackson2ObjectMapperBuilder.json();
+    if (this.applicationContext != null) {
+        builder.applicationContext(this.applicationContext);
     }
 
+    messageConverters.add(new MappingJackson2HttpMessageConverter(builder.build()));
 }
 ```
 
