@@ -482,3 +482,16 @@ server {
      rewrite ^(.*) https://$server_name$1 permanent;
 }
 ```
+
+## 8.default_server
+自己创建的一个小项目中，每次通过 ip 地址访问服务器时（其它网站依据 ip 抓包，会轮询 ip 地址），会自动跳转到 tomcat 服务器，现在想阻止 ip 访问跳转，可以进行如下配置。匹配不到具体的 server_name 时，默认都返回 403。
+```
+server {
+    listen 80 default_server;
+    listen 443 default_server;
+    server_name _;
+    ssl_certificate /etc/nginx/conf.d/ssl.pem;
+    ssl_certificate_key /etc/nginx/conf.d/ssl.key;
+    return 403; # 403 forbidden
+}
+```
