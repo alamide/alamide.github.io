@@ -4,6 +4,7 @@ title: SpringMVC HttpMessageConverter
 categories: java
 tags: Java SpringMVC
 date: 2023-05-16
+isHidden: true
 ---
 SpringWeb 使用 HttpMessageConverter 来转化 HTTP 请求的 Request 和 Response.
 <!--more-->

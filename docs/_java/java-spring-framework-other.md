@@ -272,8 +272,8 @@ public class JDBCTemplateTest {
 </tx:advice>
 ```
 
-## 3.Resources
-包路径是 `org.springframework.core.io.Resources` 
+## 3.Resource
+包路径是 `org.springframework.core.io.Resource` 
 
 1. `UrlResource` ，`loadUrlResources("http://www.zhaosiyuan.com");` ，访问网络资源
 

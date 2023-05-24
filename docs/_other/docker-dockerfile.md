@@ -36,7 +36,7 @@ Dockerfile 常用构建保留字
 
 11. `CMD` 指定容器启动后执行的命令，可以有多个 CMD ，但是只有最后一个生效，CMD 会被 docker run 之后的参数替换，RUN 是构建时运行
 
-12. `ENTRYPOINT` 指定容器启动时执行的命令，类似于 CMD ，但是不会被 docker run 后面的命令覆盖，`ENTRYPOINT["java", "-jar", "aa.jar"]`
+12. `ENTRYPOINT` 指定容器启动时执行的命令，类似于 CMD ，也是只有最后一个生效，但是不会被 docker run 后面的命令覆盖，`ENTRYPOINT["java", "-jar", "aa.jar"]`
 
 制作 JAVA 环境
 ```
@@ -83,6 +83,9 @@ FROM openjdk:17
 COPY ./target/DataStatistics-1.0-SNAPSHOT.jar /root/app/DataStatistics-1.0-SNAPSHOT.jar
 
 WORKDIR /root/app
+
+#修改时区
+RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 
 #从命令行指定配置文件的前提是  SpringApplication.run(MainApplication.class, args); 要传入 args，否则无效，我踩的一个小坑
 ENTRYPOINT ["java", "-jar", "DataStatistics-1.0-SNAPSHOT.jar" ,"--spring.profiles.active=prod"]
