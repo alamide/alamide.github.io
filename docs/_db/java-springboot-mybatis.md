@@ -5,7 +5,6 @@ categories: db
 excerpt: SpringBoot 整合 Mybatis
 tags: Mybatis 
 date: 2023-04-01
-isHidden: true
 ---
 * 文档 [在这里](https://github.com/mybatis/spring-boot-starter/blob/master/mybatis-spring-boot-autoconfigure/src/site/zh/markdown/index.md)
 

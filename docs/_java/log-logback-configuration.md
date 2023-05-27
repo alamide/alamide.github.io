@@ -5,7 +5,6 @@ categories: java log
 tags: java log slfj
 date: 2023-04-04
 excerpt: Logback Configuration
-isHidden: true 
 ---
 
 可以通过配置文件来管理 `logger` ，系统寻找配置文件的顺序为，先去 classpath 下找 `logback-test.xml ` ，如未找到，再去找 `logback.xml` 。

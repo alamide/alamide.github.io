@@ -5,7 +5,6 @@ categories: java
 excerpt: Spring Framework IOC, V6.0.7
 tags: Java Spring SpringFramework
 date: 2023-04-05
-isHidden: true
 ---
 IOC 即 Inversion of Control 的简写，控制反转。对象的创建和管理交由容器负责，控制权交给容器。DI（Dependency Injection）：依赖注入， 实现了控制反转的思想，
 指 Spring 创建对象的过程中，将对象依赖属性通过配置进行注入。

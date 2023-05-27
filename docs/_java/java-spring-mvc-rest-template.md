@@ -4,7 +4,6 @@ title: SpringMVC RestTemplate
 categories: java
 tags: Java SpringMVC
 date: 2023-05-22
-isHidden: true
 ---
 SpringMVC RestTemplate，可以实现多个应用之间 Restful 风格接口调用
 <!--more-->

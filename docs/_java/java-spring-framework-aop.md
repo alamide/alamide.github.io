@@ -5,7 +5,6 @@ categories: java
 excerpt: Spring Framework AOP, V6.0.7
 tags: Java Spring SpringFramework
 date: 2023-04-05
-isHidden: true
 ---
 ## 1.写在前面的内容
 `AOP(Aspect Oriented Programming)` ，面向切面编程。思考一下，我们写类、写方法的目的是什么，是为了提高我们的开发效率，更好的复用、维护代码。我们将各种功能（方法）抽取，再“纵向”组合，快捷的开发出各式各样的系统。系统运行的时候是垂直纵向的，从第一行代码开始，到最后一行代码结束，从第一个方法开始，到最后一个方法结束。

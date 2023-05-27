@@ -4,7 +4,6 @@ title: MyBatis 插入数据时字段自动填充
 categories: db
 tags: Mybatis Interceptor
 date: 2023-04-15
-isHidden: true
 ---
 Mybatis 插入数据时自动插入雪花算法生成的 id、创建时间、更新时间，及更新数据时自动插入更新时间。这里是配合 Mybatis Generator 生成的映射文件和接口使用的
 ，目前只支持插入数据时使用 `insertSelective` ，更新数据时使用 `updateByPrimaryKeySelective` ，随着需求不断迭代

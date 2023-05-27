@@ -4,7 +4,6 @@ title: Java 基础 Collection 增强
 categories: java
 tags: Java Collection
 date: 2023-05-09
-isHidden: true
 ---
 Java 基础语法 Collection 增强，学习内容来自 《Java 实战（第二版）》
 <!--more-->
@@ -130,3 +129,11 @@ charCount.entrySet().removeIf(stringLongEntry -> stringLongEntry.getValue() > 1)
 
 ## 4.ConcurrentHashMap
 线程安全，提供一些其它的操作方法，serachKeys、searchValues 等等
+
+计数 
+```java
+ConcurrentHashMap<String, Long> concurrentHashMap = new ConcurrentHashMap<>(charCount);
+final long count = concurrentHashMap.mappingCount();
+System.out.println(count);
+
+```

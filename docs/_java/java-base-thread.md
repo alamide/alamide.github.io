@@ -4,7 +4,6 @@ title: Java 基础 Thread
 categories: java
 tags: Java Thread
 date: 2023-04-11
-isHidden: true
 ---
 Java 基础语法 Thread，学习内容来自 《Java 编程的逻辑》
 <!--more-->
@@ -61,6 +60,10 @@ output:
 
 可以看到调用 `join` ，会等待该线程结束
 ## 3.多线程共享内存的问题
+当多个线程共享数据时，可能会出现线程安全问题，Java 线程模型如下，模型图片来自深入理解 Java 虚拟机
+<img src="../assets/imgs/java-thread-model.jpg" style="width:100%;margin-top:15px;margin-bottom:15px;"/>
+在 Java 内存模型中，分为主内存和线程工作内存，每条线程都有自己的工作内存，线程使用共享数据时，都是先从主存拷贝到工作内存，线程对该变量的所有操作都必须在工作内存中进行，而不能直接读写主内存中的变量，操作完成后再写回主内存。不能线程之间不能互相访问对方的工作内存，必须通过主内存来完成。多线程操作同一变量时会发生数据不一致，出现线程安全问题。
+
 ```java
 public class ThreadTest {
     public static int sharedInt = 0;
@@ -450,6 +453,15 @@ System.out.println(submit.get());
 ```
 
 ## 9.线程中断
+很多线程的运行模式是死循环，如生产者/消费者模式中，消费者主体就是一个死循环，在程序停止时，我们需要有一种优雅的方式关闭该线程。
+
+Thread 定义了如下线程中断的方法：
+```java
+public boolean isInterrupted()
+public void interrupt()
+public static boolean interrupted()
+```
+
 一般我们的线程使用 Executor 管理，调用 shutdown/shutdownNow。调用线程中断方法后，不一定立即结束线程。
 
 线程的状态有：
@@ -460,3 +472,216 @@ System.out.println(submit.get());
 3. BLOCKED：线程在等待锁，试图进入同步块。
 
 4. NEW/TERMINATED：线程还未启动或已结束。
+
+## 10.原子变量和CAS
+对于以下形式的代码，synchronized 成本有点太高了，需要先获取锁，最后再释放锁，获取不到锁的时候还要等待，还有线程的上下文切换
+```java
+private int count;
+public synchronized void incr() {
+    count++;
+}
+public synchronized int getCount() {
+    return count;
+}
+```
+
+可以做一下性能测试对比一下，测试数据 8 线程，每个线程 1000_0000 次 incr
+```java
+public class SynchronizedCounter implements ICounter{
+    private int count;
+    @Override
+    public synchronized void incr() {
+        count++;
+    }
+    @Override
+    public synchronized int getCount() {
+        return count;
+    }
+}
+
+public class AtomicIntegerCounter implements ICounter{
+    private final AtomicInteger counter = new AtomicInteger(0);
+    @Override
+    public void incr(){
+        counter.incrementAndGet();
+    }
+    @Override
+    public int getCount(){
+        return counter.get();
+    }
+}
+
+@State(Scope.Thread)
+@BenchmarkMode(Mode.AverageTime)
+@OutputTimeUnit(TimeUnit.MILLISECONDS)
+@Fork(value = 2, jvmArgs = {"-Xms4G", "-Xmx4G"})
+public class CounterBenchMark {
+
+    @Benchmark
+    public void atomic() throws InterruptedException {
+        count(new AtomicIntegerCounter());
+    }
+    
+    @Benchmark
+    public void synch() throws InterruptedException {
+        count(new SynchronizedCounter());
+    }
+
+    private void count(ICounter counter) throws InterruptedException {
+        final ExecutorService executorService = Executors.newFixedThreadPool(8);
+        CountDownLatch countDownLatch = new CountDownLatch(8);
+
+        for (int i = 0; i < 8; i++) {
+            executorService.execute(() -> {
+                IntStream.rangeClosed(1, 10000000).forEach(n -> counter.incr());
+                countDownLatch.countDown();
+            });
+        }
+
+        countDownLatch.await();
+        executorService.shutdownNow();
+
+        assert counter.getCount() == 8000_0000;
+    }
+
+    public static void main(String[] args) throws RunnerException {
+        Options opt = new OptionsBuilder()
+                .include(CounterBenchMark.class.getSimpleName())
+                .warmupIterations(5)
+                .measurementIterations(5)
+                .build();
+
+        new Runner(opt).run();
+    }
+}
+```
+
+测试结果，可以看出性能差距还是蛮大的
+```
+Benchmark                Mode  Cnt     Score     Error  Units
+CounterBenchMark.atomic  avgt   10  2257.037 ± 244.928  ms/op
+CounterBenchMark.synch   avgt   10  5586.794 ± 735.329  ms/op
+```
+
+Java 包中提供的原子变量类型有 `AtomicBoolean`、`AtomicInteger`、`AtomicLong`、`AtomicReference`
+
+AtomicInteger 主要方法有
+```java
+//构造方法
+public AtomicInteger(int initialValue)
+public AtomicInteger()
+
+//实例方法
+//以原子方式获取旧值并设置新值
+public final int getAndSet(int newValue)
+//以原子方式获取旧值并给当前值加1
+public final int getAndIncrement()
+//以原子方式获取旧值并给当前值减1
+public final int getAndDecrement()
+//以原子方式获取旧值并给当前值加delta
+public final int getAndAdd(int delta)
+//以原子方式给当前值加1并获取新值
+public final int incrementAndGet()
+//以原子方式给当前值减1并获取新值
+public final int decrementAndGet()
+//以原子方式给当前值加delta并获取新值
+public final int addAndGet(int delta)
+```
+
+所有这些方法都依赖 `compareAndSet` 简称 `CAS`，书上有写实现原理，但是在 Java17 中，已经使用本地方法实现了，所以就先不去扒源码了
+
+## 11.显式锁
+显式锁的接口为 `Lock`
+```java
+public interface Lock {
+    //获取锁，会阻塞
+    void lock();
+    //获取锁，可以响应中断
+    void lockInterruptibly() throws InterruptedException;
+    //尝试获取锁，立即返回，不阻塞，如果成功返回 true，失败返回 false
+    boolean tryLock();
+    //先尝试获取锁，如果成功立即返回 true，否则阻塞等待，等待的时长由参数指定，等待的同时响应中断，如果发生中断抛出 InterruptedException
+    //如果在等待时长内获取了锁，返回 true，否则返回 false
+    boolean tryLock(long time, TimeUnit unit) throws InterruptedException;
+    //释放锁
+    void unlock();
+    //新建一个条件
+    Condition newCondition();
+}
+```
+
+Lock 的主要实现类为 ReentrantLock，其构造方法为
+```java
+public ReentrantLock()
+//参数为是否保证公平，默认为 false，公平是指等待时间最长的线程优先获得锁，保证公平会影响性能，所以默认不保证，synchronized 为不公平
+public ReentrantLock(boolean fair)
+```
+
+基本用法如下
+```java
+public class LockCounter implements ICounter {
+    private final ReentrantLock lock = new ReentrantLock();
+    private volatile int count;
+
+    @Override
+    public void incr() {
+        lock.lock();
+        try {
+            count++;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    public int getCount() {
+        return count;
+    }
+}
+```
+
+可以使用 tryLock 来避免死锁，将上面的死锁代码修改一下，就可以避免死锁了
+```java
+public static class Resources {
+    private static final ReentrantLock resA = new ReentrantLock();
+    private static final ReentrantLock resB = new ReentrantLock();
+
+    public static void startThreadA() throws InterruptedException {
+        Thread threadA = new Thread(() -> {
+            resB.tryLock();
+            try {
+                System.out.println("threadA working...");
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } finally {
+                resB.unlock();
+            }
+            resA.tryLock();
+
+        });
+
+        threadA.start();
+    }
+
+    public static void startThreadB() throws InterruptedException {
+        Thread threadB = new Thread(() -> {
+            resA.tryLock();
+            try {
+                System.out.println("threadB working...");
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } finally {
+                resA.unlock();
+            }
+            resB.tryLock();
+        });
+
+        threadB.start();
+        threadB.join();
+    }
+}
+```
+
+一般情况下能用 `synchronized` 就用 `synchronized`，不满足要求时再考虑使用 `ReentrantLock`。

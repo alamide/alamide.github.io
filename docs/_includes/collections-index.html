@@ -1,6 +1,21 @@
-{% assign posts=site.[include.collections] | where_exp: "item", "item.title != 'index'"|  where_exp: "item", "item.isHidden != true"| sort: "date" | reverse %}
+{% assign posts=site.[include.collections] | where_exp: "item", "item.isIndex != true"| where_exp: "item", "item.title != 'index'"|  where_exp: "item", "item.isHidden != true"| sort: "date" | reverse %}
+{% assign topPosts=site.[include.collections] | where_exp: "item", "item.isIndex == true" | sort: "order"%}
+
 <!-- <h3>本部分共 {{posts.size}} 篇笔记</h3> -->
 <ol>
+  {% for post in topPosts %}
+  <li>
+    <h2>
+      <a href="{{ post.url }}">
+        {{ post.title }}
+      </a>
+    </h2>
+    {% unless post.hideDate %}
+      <small style="color: #aa759f;">合集，{{post.author | default: site.author }}</small>
+      <p>{{post.excerpt}}</p>
+    {% endunless%}
+  </li>
+  {% endfor %}
   {% for post in posts %}
   <li>
     <h2>

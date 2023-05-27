@@ -4,7 +4,6 @@ title: MyBatis Generator
 categories: db
 tags: Mybatis
 date: 2023-04-02
-isHidden: true
 excerpt: Mybatis 逆向生成工具，可以依据数据库中表结构自动生成 POJO、*Mapper.xml、*Mapper.java
 ---
 
