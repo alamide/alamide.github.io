@@ -52,9 +52,8 @@
 </head>
 
 <body>
-  {% assign all_title = site.documents | map: "title" %}
-  {% assign all_index = site.documents | where: "title", "index" %}
-  {% assign blog_num = all_title.size | minus: all_index.size %}
+  {% assign all_post= site.documents | where_exp: "item", "item.title != 'index'"| where_exp: "item", "item.isIndex != true" %}
+  {% assign blog_num = all_post.size %}
   <header>
     <div class="container">
       <a id="a-title" href="/">
