@@ -285,7 +285,7 @@ public class ConcurrentListBenchMark {
 
     @Benchmark
     public void collectionsSynchronized() throws InterruptedException {
-        opReadAndWrite(Collections.synchronizedList(list));
+        opReadAndWrite(Collections.synchronizedList(new ArrayList<>(list)));
     }
 
     @Benchmark
