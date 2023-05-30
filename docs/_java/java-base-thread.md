@@ -685,3 +685,615 @@ public static class Resources {
 ```
 
 一般情况下能用 `synchronized` 就用 `synchronized`，不满足要求时再考虑使用 `ReentrantLock`。
+
+## 12.显式条件
+锁用于解决竞态条件问题，条件是线程间的协作机制，显式锁与 `synchronized` 对应，而显式条件与 `wait/notify` 相对应。`wait/notify` 与 `synchronized` 配合使用，显式条件与显式锁配合使用。条件与锁相关连，创建条件变量需要通过显式锁。
+```java
+Condition newCondition();
+```
+
+Condition 表示变量，是一个接口，它的定义为：
+```java
+public interface Condition {
+    //等待，与 synchronized 对应，等待时释放锁，调用 await 前需要先获取锁
+    void await() throws InterruptedException;
+    //响应中断，如果发生中断，抛出 InterruptedException
+    void awaitUninterruptibly();
+    long awaitNanos(long nanosTimeout) throws InterruptedException;
+    boolean await(long time, TimeUnit unit) throws InterruptedException;
+    //等待的时间是绝对时间，如果由于等待超时返回，返回值为 false，否则为 true
+    boolean awaitUntil(Date deadline) throws InterruptedException;
+    //与 notify 对应
+    void signal();
+    //与 notifyAll 对应
+    void signalAll();
+}
+```
+
+应用示例
+```java
+private static class ConditionThread extends Thread {
+    private volatile boolean isFire = false;
+    private final Lock lock = new ReentrantLock();
+    private final Condition condition = lock.newCondition();
+
+    @Override
+    public void run() {
+        try {
+            lock.lock();
+            while (!isFire) {
+                condition.await();
+            }
+            System.out.println("fired");
+        } catch (InterruptedException e) {
+            Thread.interrupted();
+        } finally {
+            lock.unlock();
+        }
+    }
+    public void fire() {
+        lock.lock();
+        isFire = true;
+        try {
+            condition.signal();
+        } finally {
+            lock.unlock();
+        }
+    }
+}
+
+@Test
+public void testCondition() throws InterruptedException {
+    ConditionThread conditionThread = new ConditionThread();
+    conditionThread.start();
+    Thread.sleep(1000);
+    System.out.println("fire");
+    conditionThread.fire();
+    conditionThread.join();
+}
+```
+
+利用 `Condition` 实现 `BlockingQueue` 
+```java
+private static class MyBlockingQueue<E> {
+    private final ReentrantLock lock = new ReentrantLock();
+    private final Condition notFull = lock.newCondition();
+    private final Condition notEmpty = lock.newCondition();
+    private final int limit;
+    private final Queue<E> queue;
+
+    public MyBlockingQueue(int limit) {
+        this.limit = limit;
+        queue = new ArrayDeque<>(limit);
+    }
+
+    public void put(E e) {
+        try {
+            lock.lockInterruptibly();
+            if (queue.size() == limit) {
+                notFull.await();
+            }
+            queue.add(e);
+            System.out.println("put " + e + ", size = " + queue.size());
+            notEmpty.signal();
+        } catch (InterruptedException ex) {
+            throw new RuntimeException(ex);
+        }finally {
+            lock.unlock();
+        }
+    }
+
+    public E take(){
+        try {
+            lock.lockInterruptibly();
+            while (queue.isEmpty()){
+                notEmpty.await();
+            }
+            System.out.println("take , size = " + queue.size());
+
+            return queue.poll();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }finally {
+            notFull.signal();
+            lock.unlock();
+        }
+    }
+}
+
+@Test
+public void testBlockingQueue() throws IOException {
+    MyBlockingQueue<Integer> blockingQueue = new MyBlockingQueue<>(5);
+    final ExecutorService executorService = Executors.newFixedThreadPool(5);
+    executorService.execute(() -> {
+        while (true){
+            try {
+                Thread.sleep(500);
+                blockingQueue.put(new Random().nextInt(10, 20));
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    });
+
+    for (int i=0; i<4; i++){
+        executorService.execute(() -> {
+            while (true){
+                try {
+                    Thread.sleep(3000);
+                    final Integer take = blockingQueue.take();
+                    System.out.println(Thread.currentThread().getName() + " consume " + take);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+    }
+
+    System.in.read();
+}
+```
+
+## 13.并发容器
+### 13.1 CopyOnWriteArrayList、CopyOnWriteArraySet
+线程安全容器，修改操作加锁，读不加，适用于写少，读多的场景
+```java
+public boolean add(E e) {
+    synchronized (lock) {
+        Object[] es = getArray();
+        int len = es.length;
+        es = Arrays.copyOf(es, len + 1);
+        es[len] = e;
+        setArray(es);
+        return true;
+    }
+}
+
+public E get(int index) {
+    return elementAt(getArray(), index);
+}
+```
+
+### 13.2 ConcurrentHashMap
+HashMap 对应的并发版本
+### 13.3 ConcurrentSkipListMap、ConcurrentSkipListSet
+TreeMap 和 TreeSet 对应的并发版本
+### 13.4 ConcurrentLinkedQueue、ConcurrentLinkedDeque
+无锁非阻塞并发队列 
+### 13.5 ArrayBlockingQueue、LinkedBlockingQueue、LinkedBlockingDeque
+普通阻塞队列
+### 13.6 PriorityBlockingQueue
+优先阻塞队列
+### 13.7 DelayQueue
+延时阻塞队列
+### 13.8 SynchronousQueue、LinkedTransferQueue
+其它阻塞队列
+## 14.线程池
+线程池的优点是：
+1. 它可以重用线程，避免线程创建的开销
+
+2. 任务过多时，通过排队避免创建过多线程，减少系统资源消耗和竞争，确保任务有效完成
+
+3. 更好的管理线程
+
+官方提供的线程池为 `ThreadPoolExecutor` ，使用时可以通过 `Executors` 提供的静态方法
+```java
+//固定线程数
+public static ExecutorService newFixedThreadPool(int nThreads);
+
+//单线程
+public static ExecutorService newSingleThreadExecutor();
+
+//有空闲时复用空闲线程，没有时新创建
+public static ExecutorService newCachedThreadPool();
+```
+
+`ExecutorService` 提供的方法有
+```java
+public interface ExecutorService extends Executor {
+    //不再接受新任务，但已提交的任务会继续执行
+    void shutdown();
+    //不接受新任务，而且会终止已提交但尚未执行的任务，对于正在执行的任务，一般会调用线程的interrupt方法尝试中断，
+    //不过，线程可能不响应中断，shutdownNow会返回已提交但尚未执行的任务列表
+    List<Runnable> shutdownNow();
+    boolean isShutdown();
+    boolean isTerminated();
+    boolean awaitTermination(long timeout, TimeUnit unit)
+        throws InterruptedException;
+    //等待所有任务执行成功，返回的 Future 列表中，每个 Future 的 isDone 都是 true，不过 true 不一定代表任务执行成功
+    //也有可能是被取消，可以指定超时时间，超时后还有任务未完成，则取消
+    <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks)
+        throws InterruptedException;
+    <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks,
+                                    long timeout, TimeUnit unit)
+        throws InterruptedException;
+    //只要有一个任务在限定时间内完成，就会返回该任务的执行结果，如果没有任务在限定时间内完成，则抛出异常
+    <T> T invokeAny(Collection<? extends Callable<T>> tasks)
+        throws InterruptedException, ExecutionException;
+    <T> T invokeAny(Collection<? extends Callable<T>> tasks,
+                    long timeout, TimeUnit unit)
+        throws InterruptedException, ExecutionException, TimeoutException;
+}
+```
+
+利用 `invokeAll` 可以将前文的 `CountdownLatch` 替换，所有任务完成后再退出主线程
+```java
+@Test
+public void atomic() throws InterruptedException {
+    ICounter counter = new LockCounter();
+    final ExecutorService executorService = Executors.newFixedThreadPool(8);
+    List<Callable<Void>> list = new ArrayList<>();
+    for (int i = 0; i < 8; i++) {
+        list.add(() -> {
+            IntStream.rangeClosed(1, 10000000).forEach(n -> counter.incr());
+            return null;
+        });
+    }
+
+    executorService.invokeAll(list);
+    System.out.println(counter.getCount());
+}
+```
+
+## 15.任务
+`Runnable` 和 `Callable` 表示要执行的异步任务，`Future` 表示异步执行的结果
+```java
+@FunctionalInterface
+public interface Callable<V> {
+
+    V call() throws Exception;
+}
+
+public interface Future<V> {
+    //cancel用于取消异步任务，如果任务已完成、或已经取消、或由于某种原因不能取消，cancel返回false，否则返回true。
+    //如果任务还未开始，则不再运行。但如果任务已经在运行，则不一定能取消
+    boolean cancel(boolean mayInterruptIfRunning);
+    boolean isCancelled();
+    boolean isDone();
+    //获取异步任务最终的结果，如果任务未完成成，则阻塞等待
+    V get() throws InterruptedException, ExecutionException;
+    V get(long timeout, TimeUnit unit) throws InterruptedException,
+        ExecutionException, TimeoutException;
+}
+```
+
+使用示例
+```java
+@Test
+public void testFuture() throws ExecutionException, InterruptedException {
+    final ExecutorService executorService = Executors.newFixedThreadPool(1);
+    final Future<String> submit = executorService.submit(() -> {
+        try {
+            Thread.sleep(1000);
+            return "Hallo";
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    });
+
+    //阻塞等待
+    final String s = submit.get();
+    System.out.println(s);
+}
+```
+
+## 16.定时任务
+`ScheduledExecutorService` 
+
+```java
+public interface ScheduledExecutorService extends ExecutorService {
+    //等待指定时长后，执行，执行一次
+    public ScheduledFuture<?> schedule(Runnable command,
+                                       long delay, TimeUnit unit);
+    
+    public <V> ScheduledFuture<V> schedule(Callable<V> callable,
+                                           long delay, TimeUnit unit);
+
+    //等待指定时长后，按照周期 period 执行
+    public ScheduledFuture<?> scheduleAtFixedRate(Runnable command,
+                                                  long initialDelay,
+                                                  long period,
+                                                  TimeUnit unit);
+    
+    //在前一个任务完成后，再间隔 period 后执行
+    public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command,
+                                                     long initialDelay,
+                                                     long delay,
+                                                     TimeUnit unit);
+}
+```
+
+`scheduleWithFixedDelay` 示例
+```java
+@Test
+public void testScheduled() throws IOException {
+    final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(10);
+    scheduledExecutorService.scheduleWithFixedDelay(() -> {
+        System.out.println(DateTimeFormatter.ofPattern("HH:mm:ss").format(LocalDateTime.now()) + "--scheduleWithFixedDelay--execute");
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }, 0, 1, TimeUnit.SECONDS);
+
+    System.in.read();
+}
+```
+
+output:
+```
+17:55:55--scheduleWithFixedDelay--execute
+17:55:58--scheduleWithFixedDelay--execute
+17:56:01--scheduleWithFixedDelay--execute
+17:56:04--scheduleWithFixedDelay--execute
+```
+
+可以看到间隔时间为 3s ，每次任务完成后再等待 1s ，所以每次间隔为 1+2=3s。修改为 `scheduleAtFixedRate`
+```java
+scheduledExecutorService.scheduleAtFixedRate(...)
+```
+
+output:
+```
+18:01:21--scheduleWithFixedDelay--execute
+18:01:23--scheduleWithFixedDelay--execute
+18:01:25--scheduleWithFixedDelay--execute
+```
+
+每次间隔 2s ，按指定间隔执行
+## 17.同步和协作工具类
+### 17.1 读写锁 ReentrantReadWriteLock
+对于 `synchronized` 和 `ReentrantLock` ，对同一受保护的对象，无论是读和写，它们都要求获得相同的锁。在一些场景中这是没有必要的，我们可以多个线程读并行。可以使用 `ReentrantReadWriteLock`。
+
+示例：构建一个可并发容器
+```java
+public class DiyConcurrentList<E> extends ArrayList<E> {
+    private ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+    private final Lock readLock = lock.readLock();
+    private final Lock writeLock = lock.writeLock();
+
+    public DiyConcurrentList() {
+    }
+
+    public DiyConcurrentList(Collection<? extends E> c) {
+        super(c);
+    }
+
+    public boolean add(E e) {
+        try {
+            writeLock.lock();
+            super.add(e);
+            return true;
+        } finally {
+            writeLock.unlock();
+        }
+    }
+
+    public E get(int index) {
+        try {
+            readLock.lock();
+            return super.get(index);
+        } finally {
+            readLock.unlock();
+        }
+    }
+
+    public int size() {
+        try {
+            readLock.lock();
+            return super.size();
+        } finally {
+            readLock.unlock();
+        }
+    }
+}
+```
+
+### 17.2 信号量Semaphore
+可以限制对资源的并发访问数
+```java
+//允许的并发访问数
+public Semaphore(int permits)
+public Semaphore(int permits, boolean fair)
+
+//阻塞获取许可
+public void acquire() throws InterruptedException
+//阻塞获取许可，不响应中断
+public void acquireUninterruptibly()
+//批量获取多个许可
+public void acquire(int permits) throws InterruptedException
+public void acquireUninterruptibly(int permits)
+//尝试获取
+public boolean tryAcquire()
+//限定等待时间获取
+public boolean tryAcquire(int permits, long timeout,
+    TimeUnit unit) throws InterruptedException
+//释放许可，任意线程都可以调用，不一定是调用 acquire 的线程
+public void release()
+```
+
+小示例：
+```java
+private static class SharedResource {
+    private final Semaphore semaphore = new Semaphore(3);
+
+    public void drink(){
+        try {
+            semaphore.acquire();
+            System.out.println(Thread.currentThread().getName() + " is drinking...");
+            Thread.sleep(5000);
+            semaphore.release();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
+
+@Test
+public void testSemaphore() throws InterruptedException {
+    final ExecutorService executorService = Executors.newFixedThreadPool(10);
+    SharedResource sharedResource = new SharedResource();
+    for (int i = 0; i < 10; i++) {
+        executorService.execute(sharedResource::drink);
+    }
+
+    executorService.shutdown();
+    executorService.awaitTermination(Integer.MAX_VALUE, TimeUnit.SECONDS);
+}
+```
+
+### 17.3 CountDownLatch
+等待所有线程都完成，例如上面 Semaphore 的 executorService.awaitTermination 可以使用 CountdownLatch 来替换
+```java
+@Test
+public void testSemaphore() throws InterruptedException {
+    final ExecutorService executorService = Executors.newFixedThreadPool(10);
+    CountDownLatch countDownLatch = new CountDownLatch(10);
+    SharedResource sharedResource = new SharedResource();
+    for (int i = 0; i < 10; i++) {
+        executorService.execute(() -> {
+            try {
+                sharedResource.drink();
+            }finally {
+                countDownLatch.countDown();
+            }
+        });
+    }
+
+    countDownLatch.await();
+    executorService.shutdownNow();
+}
+```
+
+### 17.4 循环栅栏CyclicBarrier
+所有线程到达该栅栏后都需要等待其它线程，等待所有线程都通过后，再一起通过，它是循环的，可以重复的同步，赛马小游戏
+```java
+private static class Horse implements Runnable {
+    private static int counter = 0;
+    private final int id = counter++;
+    private int strides = 0;
+    private final static Random random = new Random(47);
+    private final CyclicBarrier cyclicBarrier;
+
+    private Horse(CyclicBarrier cyclicBarrier) {
+        this.cyclicBarrier = cyclicBarrier;
+    }
+
+    public synchronized int getStrides() {
+        return strides;
+    }
+
+    @Override
+    public void run() throws RuntimeException {
+        while (!Thread.interrupted()) {
+            this.strides += random.nextInt(3);
+            try {
+                cyclicBarrier.await();
+            } catch (InterruptedException | BrokenBarrierException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    public String tracks() {
+        return "*".repeat(Math.max(0, getStrides())) + id;
+    }
+
+    @Override
+    public String toString() {
+        return "Horse " + id + " ";
+    }
+}
+
+private static class HorseRace {
+    static final int FINISH_LINE = 75;
+    private final List<Horse> horses = new ArrayList<>();
+    private final ExecutorService executorService = Executors.newCachedThreadPool();
+    public HorseRace(int nHorses, int pause) {
+        CyclicBarrier barrier = new CyclicBarrier(nHorses, () -> {
+            System.out.println("=".repeat(FINISH_LINE));
+            for (Horse horse : horses) {
+                System.out.println(horse.tracks());
+            }
+
+            for (Horse horse : horses) {
+                if (horse.getStrides() >= FINISH_LINE) {
+                    System.out.println(horse + " win!");
+                    executorService.shutdownNow();
+                    return;
+                }
+            }
+
+            try {
+                Thread.sleep(pause);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        for (int i = 0; i < nHorses; i++) {
+            Horse horse = new Horse(barrier);
+            horses.add(horse);
+            executorService.execute(horse);
+        }
+    }
+}
+
+@Test
+public void testHorseRace() throws IOException {
+    new HorseRace(5, 1000);
+    System.in.read();
+}
+```
+
+## 18.ThreadLocal
+线程本地变量，可以用于线程上下文信息传递，例如在 JavaWeb 开发中，可以将用户 ID 保存在 ThreadLocal 中。具体操作是，用户登录之后将 UserId 存储在 Seesion 中，后续请求使用 Filter ，先从 Session 中查出 UserId，再将 UserId 存放在 ThreadLocal 中，后续操作可以直接从 ThreadLocal 中获取 UserId。
+```java
+public class BaseContext {
+    private static final ThreadLocal<Long> employeeId = new ThreadLocal<>();
+
+    public static void setCurrentId(Long id) {
+        employeeId.set(id);
+    }
+
+    public static Long getCurrentId() {
+        return employeeId.get();
+    }
+}
+
+@Override
+public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+
+    HttpServletRequest request = (HttpServletRequest) servletRequest;
+    HttpServletResponse response = (HttpServletResponse) servletResponse;
+
+    final String requestURI = request.getRequestURI();
+
+    log.info("request uri: {}", requestURI);
+    String[] urls = new String[]{
+    };
+
+    //登陆页和静态资源等不需要拦截
+    if (isMatch(urls, requestURI)) {
+        log.info("本次请求不需要处理 {}", requestURI);
+        filterChain.doFilter(request, response);
+        return;
+    }
+
+    final Long userId = (Long) request.getSession().getAttribute("userId");
+
+    if (userId != null) {
+        log.info("前台用户：{}, 已登录", userId);
+        BaseContext.setCurrentId(userId);
+        filterChain.doFilter(request, response);
+        return;
+    }
+
+    response.getWriter().write(new ObjectMapper().writeValueAsString(R.error("NOTLOGIN")));
+}
+```
+
+
+
+
