@@ -10,10 +10,6 @@
         {{ post.title }}
       </a>
     </h2>
-    {% unless post.hideDate %}
-      <small style="color: #aa759f;">合集，{{post.author | default: site.author }}</small>
-      <p>{{post.excerpt}}</p>
-    {% endunless%}
   </li>
   {% endfor %}
   {% for post in posts %}
