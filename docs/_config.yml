@@ -40,6 +40,8 @@ collections:
     output: true
   cs:
     output: true
+  leetcode:
+    output: true
   other:
     output: true
   random:

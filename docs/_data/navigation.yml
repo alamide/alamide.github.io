@@ -8,6 +8,8 @@
   link: /db/index.html
 - name: CS
   link: /cs/index.html
+- name: LeetCode
+  link: /leetcode/index.html
 - name: 其它
   link: /other/index.html
 - name: 随记
