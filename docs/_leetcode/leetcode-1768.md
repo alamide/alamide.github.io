@@ -30,7 +30,7 @@ public String mergeAlternately(String word1, String word2) {
 }
 ```
 
-优化后版本，代码更简洁，性能的话，前面的那种解法性能可能会更优，尤其当两个字符串长度相差较大时，因为采用的是整块复制。
+优化后版本，代码更简洁，性能的话，当两个字符串长度相差较大时，前面的那种解法性能可能会更优，因为采用的是整块复制。
 ```java
 public String mergeAlternately2(String word1, String word2) {
     char[] arr1 = word1.toCharArray();
@@ -45,4 +45,20 @@ public String mergeAlternately2(String word1, String word2) {
 
     return new String(resArr);
 }
+```
+
+<hr/>
+测试数据，word1 长度 100_0000，word2 长度 1_0000_0000
+```
+Benchmark               Mode  Cnt    Score    Error  Units
+LeetCodeTest.test1768   avgt   10  195.927 ± 36.515  ms/op
+LeetCodeTest.test17682  avgt   10  237.079 ± 32.524  ms/op
+```
+
+<hr/>
+测试数据，word1 长度 100_0000，word2 长度 100_0000
+```
+Benchmark               Mode  Cnt  Score   Error  Units
+LeetCodeTest.test1768   avgt   10  4.698 ± 0.539  ms/op
+LeetCodeTest.test17682  avgt   10  4.236 ± 0.523  ms/op
 ```
