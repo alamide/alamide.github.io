@@ -1,6 +1,6 @@
 ---
 layout: post
-title: MyBatis 相关的文档
+title: MyBatis 相关
 categories: db
 tags: Mybatis
 date: 2023-03-20

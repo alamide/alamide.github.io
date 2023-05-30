@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Java 相关笔记合集
+title: Java 相关
 categories: java
 tags: java
 excerpt: Java 相关的笔记合集
@@ -14,7 +14,7 @@ order: 1
 
 3. [DateTime](../java/java-base-datetime.html)
 
-4. [Thread-Base](../java/java-base-thread.html)
+4. [Thread](../java/java-base-thread.html)
 
 5. [Lambda](../java/java-base-lambda.html)
 
