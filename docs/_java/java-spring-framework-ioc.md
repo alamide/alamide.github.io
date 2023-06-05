@@ -435,3 +435,46 @@ public void testAnnotationBean(){
     userController.saveUser();
 }
 ```
+
+## 4.Bean 的生命周期回调
+```java
+public class BeanLifeCallback {
+
+    public BeanLifeCallback(){
+        System.out.println("No Args Constructor....");
+    }
+
+    public void init(){
+        System.out.println("init....");
+    }
+
+    public void destroy(){
+        System.out.println("destroy...");
+    }
+
+    @PostConstruct
+    public void postConstructor(){
+        System.out.println("PostConstruct....");
+    }
+
+    @PreDestroy
+    public void preDestroy(){
+        System.out.println("PreDestroy....");
+    }
+}
+```
+
+output:
+```
+No Args Constructor....
+PostConstruct....
+init....
+PreDestroy....
+destroy...
+```
+
+Spring 官方推荐的回调是 `@PostConstruct` 和 `@PreDestroy`
+
+>The JSR-250 @PostConstruct and @PreDestroy annotations are generally considered best practice for receiving lifecycle callbacks in a modern Spring application. Using these annotations means that your beans are not coupled to Spring-specific interfaces. For details, see Using @PostConstruct and @PreDestroy.
+
+>If you do not want to use the JSR-250 annotations but you still want to remove coupling, consider init-method and destroy-method bean definition metadata.
