@@ -51,6 +51,8 @@ order: 1
 ### 2.4 Spring Boot
 1. [YAML 配置文件](../java/java-spring-boot-yaml.html)
 
+2. [SpringBoot 基础使用](../java/java-spring-boot.html)
+
 ## 3.数据存储相关，包括数据库连接等
 ### 3.1 MYSQL 数据库
 1. [MYSQL 安装](../db/mysql-install-config.html)
@@ -71,7 +73,6 @@ order: 1
 2. [数据库事务](../db/database-transaction-manager.html)
 
 ### 3.3 Mybatis 相关
-
 1. [Mybatis 使用文档](../db/java-jdbc-mybatis.html)
 
 2. [Mybatis ResultMap](../db/java-jdbc-mybatis-resultmap.html)
@@ -84,7 +85,10 @@ order: 1
 
 6. [SpringBoot 整合 Mybatis](../db/java-springboot-mybatis.html)
 
-7.  [MyBatis 插入数据时字段自动填充](../db/java-jdbc-mybatis-auto-fill.html)
+7. [MyBatis 插入数据时字段自动填充](../db/java-jdbc-mybatis-auto-fill.html)
+
+### 3.4 Redis 相关
+1. [Redis 基础文档](../db/redis.html)
 
 ## 4.部署相关，将服务部署到线上
 ### 4.1 Centos
