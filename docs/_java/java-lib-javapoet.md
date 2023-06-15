@@ -522,6 +522,7 @@ public abstract class Clazz<T> extends Object implements Serializable, Comparabl
 }
 ```
 
+实现代码
 ```java
 final FieldSpec mInt = FieldSpec.builder(int.class, "mInt", Modifier.PRIVATE).build();
 final FieldSpec mArr = FieldSpec.builder(int[].class, "mArr", Modifier.PRIVATE).build();
