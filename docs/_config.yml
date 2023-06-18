@@ -46,6 +46,8 @@ collections:
     output: true
   random:
     output: true
+  android:
+    output: true
 # Build settings
 # theme: minima
 remote_theme: pages-themes/hacker@v0.2.0

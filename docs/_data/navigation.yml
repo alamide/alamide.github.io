@@ -4,6 +4,8 @@
   link: /collections/index.html
 - name: Java
   link: /java/index.html
+- name: Android
+  link: /android/index.html
 - name: 数据库
   link: /db/index.html
 - name: CS
