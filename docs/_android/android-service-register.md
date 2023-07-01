@@ -255,8 +255,7 @@ public interface IServiceManager extends android.os.IInterface{
                 _data.writeInterfaceToken(DESCRIPTOR);
                 //name: Context.ACTIVITY_TASK_SERVICE
                 _data.writeString(name);
-                //service: ActivityTaskManagerInternal
-                //具体为 ActivityTaskManagerService --> mInternal(ActivityTaskManagerService.LocalService)
+                //service: ActivityTaskManagerService
                 _data.writeStrongBinder(service);
                 _data.writeBoolean(allowIsolated);
                 _data.writeInt(dumpPriority);
@@ -273,7 +272,72 @@ public interface IServiceManager extends android.os.IInterface{
 }
 ```
 
-所以最终注册 binder 驱动，将 `ActivityTaskManagerService.LocalService` 注册，名为 `Context.ACTIVITY_TASK_SERVICE`
+所以 `publishBinderService()` 的作用是注册 binder 驱动，将 `ActivityTaskManagerService` 注册，名为 `Context.ACTIVITY_TASK_SERVICE`
+
+再看 `mService.start()` 也即
+```java
+public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
+
+    final ActivityTaskManagerInternal mInternal;
+
+    public ActivityTaskManagerService(Context context) {
+        mInternal = new LocalService();
+    }
+
+    private void start() {
+        LocalServices.addService(ActivityTaskManagerInternal.class, mInternal);
+    }
+
+    public static final class Lifecycle extends SystemService {
+        private final ActivityTaskManagerService mService;
+
+        public Lifecycle(Context context) {
+            super(context);
+            mService = new ActivityTaskManagerService(context);
+        }
+
+        @Override
+        public void onStart() {
+            //publishBinderService 是 SystemService 的方法
+            publishBinderService(Context.ACTIVITY_TASK_SERVICE, mService);
+            mService.start();
+        }
+
+        public ActivityTaskManagerService getService() {
+            return mService;
+        }
+    }
+}
+```
+
+最终会调用 `LocalServices.addService(ActivityTaskManagerInternal.class, mInternal);` ，所以代码来到 `LocalServices.java`
+
+```java
+/**
+ * This class is used in a similar way as ServiceManager, except the services registered here
+ * are not Binder objects and are only available in the same process.
+ *
+ * Once all services are converted to the SystemService interface, this class can be absorbed
+ * into SystemServiceManager.
+ *
+ * {@hide}
+ */
+public final class LocalServices {
+    private static final ArrayMap<Class<?>, Object> sLocalServiceObjects =
+            new ArrayMap<Class<?>, Object>();
+
+    public static <T> void addService(Class<T> type, T service) {
+        synchronized (sLocalServiceObjects) {
+            if (sLocalServiceObjects.containsKey(type)) {
+                throw new IllegalStateException("Overriding service registration");
+            }
+            sLocalServiceObjects.put(type, service);
+        }
+    }
+}
+```
+
+这个类的只供同进程获取服务，注释有说明。
 
 到这里可以回答第4个问题了，服务是以单例的形式存在
 
@@ -393,7 +457,7 @@ public interface IServiceManager extends android.os.IInterface{
 }
 ```
 
-最终以 `name = Context.ACTIVITY_TASK_SERVICE` 获取对应的服务，结合上面注册服务的代码，可以得知获取的 service 为 `ActivityTaskManagerService.LocalService`。
+最终以 `name = Context.ACTIVITY_TASK_SERVICE` 获取对应的服务，结合上面注册服务的代码，可以得知获取的 service 为 `ActivityTaskManagerService`。
 
 到这里上面的目标已经解答三个半了，还有一个问题是，单例的线程安全问题是怎么解决的？我们经常使用的就是 startActivity，所以追踪一下这个方法来看一看，
 
@@ -457,31 +521,9 @@ public class ActivityTaskManagerService extends IActivityTaskManager.Stub {
                 .execute();
 
     }
-
-    final class LocalService extends ActivityTaskManagerInternal {
-        @Override
-        public ComponentName getHomeActivityForUser(int userId) {
-            synchronized (mGlobalLock) {
-                final ActivityRecord homeActivity =
-                        mRootWindowContainer.getDefaultDisplayHomeActivityForUser(userId);
-                return homeActivity == null ? null : homeActivity.mActivityComponent;
-            }
-        }
-
-        @Override
-        public int startActivityAsUser(IApplicationThread caller, String callerPackage,
-                @Nullable String callerFeatureId, Intent intent, @Nullable IBinder resultTo,
-                int startFlags, Bundle options, int userId) {
-            return ActivityTaskManagerService.this.startActivityAsUser(
-                    caller, callerPackage, callerFeatureId, intent,
-                    intent.resolveTypeIfNeeded(mContext.getContentResolver()),
-                    resultTo, null, 0, startFlags, null, options, userId,
-                    false /*validateIncomingUser*/);
-        }
-    }
 }
 ```
 
-可以看到，LocalService 中有的方法是加锁，有的没有加锁，涉及到共享资源时会加锁。如 `ActivityTaskManagerService-->startActivityAsUser` 中只有一小个代码片段需要加锁，其它资源都是局部变量，不会产生线程安全问题，所以不需要加锁。
+可以看到 `ActivityTaskManagerService-->startActivityAsUser` 中只有一小个代码片段需要加锁，其它资源都是局部变量，不会产生线程安全问题，所以不需要加锁。
 
 到这里四个问题解答完毕。
