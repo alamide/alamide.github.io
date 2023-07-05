@@ -132,6 +132,7 @@ Transfer-Encoding 传输编码，如值为 chunked，表示报文的响应体分
 具体响应的数据
 
 ## 4.Socket 完成网络通信
+代码用到的库为 Okio、Benchmark
 ### 4.1 简单的 GET 请求
 上文已经知晓 HTTP 请求体和响应体的格式了，首先来请求服务器，发送请求体
 ```java
