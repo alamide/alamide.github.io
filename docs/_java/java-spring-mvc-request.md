@@ -905,6 +905,33 @@ output:
 22:59:33.774 [http-nio-8080-exec-19] INFO com.alamide.web.RequestBodyController -- header = [user-agent:"PostmanRuntime/7.28.4", accept:"*/*", postman-token:"95551ad0-b283-4d5c-ba4d-895f8307e342"]
 ```
 
+#### 3.2.12 非表单提交的文件
+只是接受一个文件，没有文件名
+```java
+@RequestMapping(value = "/user/avatar", method = RequestMethod.POST)
+public String postUserAvatar(InputStream inputStream, @RequestHeader("Content-Type") String contentType) throws IOException {
+    FileCopyUtils.copy(inputStream, new FileOutputStream(new File(dirPath + System.currentTimeMillis()+".jpeg")));
+    System.out.println(contentType);
+    return "success";
+}
+
+private static void postAFile() throws IOException {
+    final HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor();
+    httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+    OkHttpClient client = new OkHttpClient.Builder()
+            .addNetworkInterceptor(httpLoggingInterceptor)
+            .build();
+
+    final MediaType MEDIA_IMAGE = MediaType.parse("image/jpeg");
+    Request request = new Request.Builder()
+            .url("http://localhost:8080/user/avatar")
+            .post(RequestBody.create(MEDIA_IMAGE, new File(file)))
+            .build();
+
+    readResponse(client, request);
+}
+```
+
 ## 4.小章总结
 ### 4.1 路径匹配
 网络请求的本质是依据 URI 访问具体的文件，整个流程可以简化为 Request、Response。具体访问哪个资源文件，由 URI 决定。SpringMVC 提供了多种 URI 匹配方式，依据 URL、URL+Parameter、URL+Content-Type、URL+Accept、URL+Header、URL+Method 等
