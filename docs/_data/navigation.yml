@@ -2,6 +2,8 @@
   link: /
 - name: 合集
   link: /collections/index.html
+- name: 嵌入式
+  link: /circuit/index.html
 - name: Java
   link: /java/index.html
 - name: Android
