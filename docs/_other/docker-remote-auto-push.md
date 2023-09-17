@@ -8,6 +8,8 @@ date: 2023-09-17
 使用 Shell 脚本，自动发布镜像到阿里云仓库。
 <!--more-->
 ```shell
+#!/bin/bash
+
 #需要制作镜像的容器 ID
 container_id="e3fe6eb64c0a"
 #目标镜像名
