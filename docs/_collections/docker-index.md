@@ -16,3 +16,5 @@ Docker 相关笔记
 3. [Docker Dockerfile&compose](../other/docker-dockerfile.html)
 
 4. [Docker Push](../other/docker-push.html)
+
+5. [Docker Auto Push](../_other/docker-remote-auto-push.md)
