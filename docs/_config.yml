@@ -48,7 +48,7 @@ collections:
     output: true
   random:
     output: true
-  android:
+  front:
     output: true
 # Build settings
 # theme: minima
