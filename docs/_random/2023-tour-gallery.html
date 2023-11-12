@@ -13,7 +13,7 @@ hideDate: true
     
     for(var img of imgs){
       var baseUrl = img.src.substring(0, img.src.indexOf("?"));
-      img.src = `${baseUrl}?x-oss-process=image/resize,h_${imgWidth*1.5},w_${imgWidth*1.5},m_lfit`;
+      img.src = `${baseUrl}?x-oss-process=image/resize,h_${imgWidth*2},w_${imgWidth*2},m_lfit`;
       $(img).click(baseUrl, function(event){
         showBigImg(event.data)
       })
