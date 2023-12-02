@@ -38,8 +38,6 @@ collections:
     output: true
   java:
     output: true
-  circuit:
-    output: true
   cs:
     output: true
   # leetcode:
