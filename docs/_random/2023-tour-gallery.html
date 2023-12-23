@@ -1,36 +1,11 @@
 ---
-layout: post
+layout: gallery
 title: 2023 Memory 
 categories: other
 tags: Personal Memory Gallery
 hideDate: true
 ---
-<script>
-  $(function(){
-    var mainContent = document.getElementById("main_content");
-    var imgWidth = Math.floor((mainContent.clientWidth-12)/3);
-    var imgs = $('div.tour-div img');
-    
-    for(var img of imgs){
-      var baseUrl = img.src.substring(0, img.src.indexOf("?"));
-      img.src = `${baseUrl}?x-oss-process=image/resize,h_${imgWidth},w_${imgWidth},m_lfit`;
-      $(img).click(baseUrl, function(event){
-        showBigImg(event.data)
-      })
-    }
-  });
-  $(function(){
-    $("#bigImgDiv").click(function(event){
-      event.currentTarget.style.visibility='hidden';
-      $("#bigImg")[0].src='';
-    })
-  })
 
-  function showBigImg(imgSrc){
-    $('#bigImgDiv')[0].style.visibility='visible';
-    $("#bigImg")[0].src=`${imgSrc}`;
-  }
-</script>
 <p class="tour-p">1月 安徽黄山</p>
 <div id="bigImgDiv" class="tour-div-big-img">
   <img id="bigImg"src=""/>

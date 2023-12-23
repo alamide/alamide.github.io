@@ -1,0 +1,60 @@
+---
+layout: default
+---
+<script>
+  $(function(){
+    var mainContent = document.getElementById("main_content");
+    var imgWidth = Math.floor((mainContent.clientWidth-12)/3);
+    var imgs = $('div.tour-div img');
+    
+    for(var img of imgs){
+      var baseUrl = img.src.substring(0, img.src.indexOf("?"));
+      img.src = `${baseUrl}?x-oss-process=image/resize,h_${imgWidth},w_${imgWidth},m_lfit`;
+      $(img).click(baseUrl, function(event){
+        showBigImg(event.data)
+      })
+    }
+
+    var togetherDays = new Date('2023-10-18');
+    var now = new Date();
+    var days = Math.floor((now-togetherDays)/1000/60/60/24);
+    var sp = document.getElementById('together_days');
+    sp.innerText = ' We\'ve been together for '+days+' days 🎉 ';
+  });
+  $(function(){
+    $("#bigImgDiv").click(function(event){
+      event.currentTarget.style.visibility='hidden';
+      $("#bigImg")[0].src='';
+    })
+  })
+
+  function showBigImg(imgSrc){
+    $('#bigImgDiv')[0].style.visibility='visible';
+    $("#bigImg")[0].src=`${imgSrc}`;
+  }
+</script>
+
+
+<h1>{{ page.title }}</h1>
+<p><small style="color:#ac4142">{% if page.date %}{{ page.date | date: "%Y-%m-%d" }}, by {{page.author | default: site.author }}{% endif %}</small></p>
+
+
+{{content}}
+
+<div style="height: 10px;"></div>
+
+{% if page.tags %}
+  <small>Tags: <em>{{ page.tags | join: "</em> - <em>" }}</em></small>
+{% endif %}
+
+<div style="display:flex;justify-content:flex-end;align-items:end;color:#ac4142;padding-bottom: 10px;">
+  <div>
+    <span id="together_days" style="font-size: 15px;color: #ac4142;">「 小破站已建 0 天啦 🐶 」</span>
+  </div>
+  
+</div>
+<div style="display:flex;justify-content:flex-end;align-items:end;color:#ac4142;padding-bottom: 10px;">
+  <small>~ belongs to han&zhao.</small>
+</div>
+
+
