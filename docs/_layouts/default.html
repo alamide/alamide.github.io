@@ -15,39 +15,39 @@
       var sp = document.getElementById('created_date');
       sp.innerText = '「 小破站已建 '+days+' 天啦 🎉 」';
 
-      if(!sessionStorage.getItem("SessionId")){
-        sessionStorage.setItem("SessionId", generateUUID())
-      }
+      // if(!sessionStorage.getItem("SessionId")){
+      //   sessionStorage.setItem("SessionId", generateUUID())
+      // }
 
-      var data = {
-        referrer: document.referrer,
-        userAgent: navigator.userAgent,
-        path: window.location.pathname,
-        sessionId: sessionStorage.getItem("SessionId")
-      }
-      var prefix = window.location.host.startsWith("127.0.0.1") ? 'http://localhost:8080':'https://data.alamide.com'
-      var requestUrl = `${prefix}/blog/visit`
-      $.ajax({
-          type: 'POST',
-          url: requestUrl,
-          data: JSON.stringify(data),
-          contentType: "application/json",
-          success: function(resp){
-          },
-          error: function(err){
-          }
-      })
+      // var data = {
+      //   referrer: document.referrer,
+      //   userAgent: navigator.userAgent,
+      //   path: window.location.pathname,
+      //   sessionId: sessionStorage.getItem("SessionId")
+      // }
+      // var prefix = window.location.host.startsWith("127.0.0.1") ? 'http://localhost:8080':'https://data.alamide.com'
+      // var requestUrl = `${prefix}/blog/visit`
+      // $.ajax({
+      //     type: 'POST',
+      //     url: requestUrl,
+      //     data: JSON.stringify(data),
+      //     contentType: "application/json",
+      //     success: function(resp){
+      //     },
+      //     error: function(err){
+      //     }
+      // })
     });
 
-    function generateUUID() {
-      var d = new Date().getTime();
-      var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        var r = (d + Math.random()*16)%16 | 0;
-        d = Math.floor(d/16);
-        return (c=='x' ? r : (r&0x3|0x8)).toString(16);
-      });
-      return uuid;
-    };
+    // function generateUUID() {
+    //   var d = new Date().getTime();
+    //   var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    //     var r = (d + Math.random()*16)%16 | 0;
+    //     d = Math.floor(d/16);
+    //     return (c=='x' ? r : (r&0x3|0x8)).toString(16);
+    //   });
+    //   return uuid;
+    // };
   </script>
 </head>
 
