@@ -17,4 +17,4 @@ Docker 相关笔记
 
 4. [Docker Push](../other/docker-push.html)
 
-5. [Docker Auto Push](../other/docker-remote-auto-push.md)
+5. [Docker Auto Push](../other/docker-remote-auto-push.html)
