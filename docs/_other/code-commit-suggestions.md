@@ -37,19 +37,15 @@ date: 2025-04-15
 7. 代码合并(merge)
 
 ### 四、提交示例
-1. 新需求、新功能
-
+1. 新需求、新功能<br>
 feature: 本次完成 xxx 功能
 
-2. 修复 BUG
-
+2. 修复 BUG<br>
 fix: 修复 xxx 问题，出现这个问题的原因是 xxx
 
-3. 优化UI、算法等
-
+3. 优化UI、算法等<br>
 optimize: 优化 xxx 功能，优化的原因是 xxx，本次优化提升了 xxx
 
-4. 代码重构
-
+4. 代码重构<br>
 refactor: 重构了 xxx 部分的代码，重构的原因是 xxx
 
