@@ -4,6 +4,7 @@ title: Android Fragment
 categories: android
 tags: android fragment
 date: 2023-07-10
+published: false
 ---
 Fragment 表示应用界面中可重复使用的一部分。可以定义和管理自己的布局，有自己的生命周期，可以处理自己的输入事件。Fragment 不能独立存在，需要依附于 Activity 或其它 Fragment。基于 Android 10 API 29
 
