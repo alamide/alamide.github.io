@@ -20,7 +20,7 @@
 
 title: alamide
 email: alamide@163.com
-description: Zhaosiyuan的笔记库
+description: ZhaoSiYuan的笔记库
 author: alamide
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://alamide.github.io" # the base hostname & protocol for your site, e.g. http://example.com
