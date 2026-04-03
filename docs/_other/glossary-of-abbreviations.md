@@ -4,7 +4,7 @@ title: 一些缩略词汇的全称
 categories: glossary
 tags: glossary
 date: 2026-04-03
-published: false
+published: true
 ---
 一些缩略词汇的全称
 <!--more-->>
